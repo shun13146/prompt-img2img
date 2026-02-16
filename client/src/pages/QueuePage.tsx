@@ -74,8 +74,17 @@ export function QueuePage() {
     const es = api.createQueueEventSource();
     eventSourceRef.current = es;
 
+    es.onerror = () => {
+      // EventSource will auto-reconnect; no action needed
+    };
+
     es.onmessage = (event) => {
-      const evt: QueueEvent = JSON.parse(event.data);
+      let evt: QueueEvent;
+      try {
+        evt = JSON.parse(event.data);
+      } catch {
+        return; // Skip malformed messages
+      }
 
       switch (evt.type) {
         case "status":
@@ -135,11 +144,7 @@ export function QueuePage() {
   };
 
   const handleClearHistory = async () => {
-    // Delete done/failed items one by one
-    const historyItems = queue.filter((q) => q.status === "done" || q.status === "failed");
-    for (const item of historyItems) {
-      await api.deleteQueueItem(item.id);
-    }
+    await api.clearHistory();
     setQueue((q) => q.filter((item) => item.status !== "done" && item.status !== "failed"));
   };
 
@@ -220,10 +225,10 @@ export function QueuePage() {
         {/* Progress bar */}
         {currentTaskId && progress && (
           <div className="flex items-center gap-2">
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
               <div
-                className="bg-blue-500 h-full transition-all"
+                className="bg-primary h-full transition-all"
                 style={{ width: `${(progress.step / progress.total) * 100}%` }}
               />
             </div>
@@ -368,17 +373,17 @@ export function QueuePage() {
 function ForgeStatusBadge({ connected }: { connected: boolean | null }) {
   if (connected === null) {
     return (
-      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+      <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
         Forge: 確認中...
       </span>
     );
   }
   return connected ? (
-    <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
       Forge: 接続済み
     </span>
   ) : (
-    <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+    <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/15 text-destructive">
       Forge: 未接続
     </span>
   );
@@ -386,9 +391,9 @@ function ForgeStatusBadge({ connected }: { connected: boolean | null }) {
 
 function RunnerStatusBadge({ status }: { status: QueueRunnerStatus }) {
   const config: Record<QueueRunnerStatus, { label: string; color: string; icon: React.ReactNode }> = {
-    idle: { label: "待機", color: "bg-gray-100 text-gray-600", icon: <Clock className="h-3 w-3" /> },
-    running: { label: "実行中", color: "bg-blue-100 text-blue-700", icon: <Loader2 className="h-3 w-3 animate-spin" /> },
-    paused: { label: "一時停止", color: "bg-yellow-100 text-yellow-700", icon: <Pause className="h-3 w-3" /> },
+    idle: { label: "待機", color: "bg-muted text-muted-foreground", icon: <Clock className="h-3 w-3" /> },
+    running: { label: "実行中", color: "bg-primary/15 text-primary", icon: <Loader2 className="h-3 w-3 animate-spin" /> },
+    paused: { label: "一時停止", color: "bg-amber-500/15 text-amber-700 dark:text-amber-400", icon: <Pause className="h-3 w-3" /> },
   };
   const c = config[status];
   return (
@@ -432,22 +437,22 @@ function QueueCard({
   const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     pending: {
       label: "待機中",
-      color: "bg-gray-100 text-gray-700",
+      color: "bg-muted text-muted-foreground",
       icon: <Clock className="h-3 w-3" />,
     },
     running: {
       label: "実行中",
-      color: "bg-blue-100 text-blue-700",
+      color: "bg-primary/15 text-primary",
       icon: <Loader2 className="h-3 w-3 animate-spin" />,
     },
     done: {
       label: `完了 (${item.result_images.length}枚)`,
-      color: "bg-green-100 text-green-700",
+      color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
       icon: <CheckCircle2 className="h-3 w-3" />,
     },
     failed: {
       label: "エラー",
-      color: "bg-red-100 text-red-700",
+      color: "bg-destructive/15 text-destructive",
       icon: <AlertCircle className="h-3 w-3" />,
     },
   };
@@ -468,7 +473,7 @@ function QueueCard({
     <div
       className={cn(
         "border rounded-lg p-3 space-y-2 transition-colors",
-        isRunning && "border-blue-300 bg-blue-50/30"
+        isRunning && "border-primary/40 bg-primary/5"
       )}
     >
       {/* Header row with source thumbnail */}
@@ -538,6 +543,8 @@ function QueueCard({
               variant="ghost"
               size="sm"
               className="h-7 px-2"
+              title="プロンプト編集"
+              aria-label="プロンプト編集"
               onClick={() => setEditing(true)}
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -548,6 +555,8 @@ function QueueCard({
             variant="ghost"
             size="sm"
             className="h-7 px-2"
+            title="コピー"
+            aria-label="プロンプトをコピー"
             onClick={() => copy(editing ? editText : item.final_prompt)}
           >
             {copied ? (
@@ -562,6 +571,8 @@ function QueueCard({
               variant="ghost"
               size="sm"
               className="h-7 px-2"
+              title="結果画像を表示"
+              aria-label="結果画像を表示"
               onClick={() => setShowResult(!showResult)}
             >
               <ImageIcon className="h-3.5 w-3.5" />
@@ -572,6 +583,8 @@ function QueueCard({
             variant="ghost"
             size="sm"
             className="h-7 px-2 text-destructive hover:text-destructive"
+            title="削除"
+            aria-label="削除"
             onClick={onDelete}
           >
             <X className="h-3.5 w-3.5" />
@@ -597,7 +610,7 @@ function QueueCard({
         <div className="flex items-center gap-2">
           <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
             <div
-              className="bg-blue-500 h-full transition-all"
+              className="bg-primary h-full transition-all"
               style={{ width: `${(progress.step / progress.total) * 100}%` }}
             />
           </div>
@@ -609,7 +622,7 @@ function QueueCard({
 
       {/* Error message */}
       {item.status === "failed" && item.error_message && (
-        <div className="text-xs text-red-600 bg-red-50 rounded p-2">
+        <div className="text-xs text-destructive bg-destructive/10 rounded p-2">
           {item.error_message}
         </div>
       )}
@@ -756,6 +769,7 @@ function ResultGallery({
             {safeIdx > 0 && (
               <button
                 type="button"
+                aria-label="前の画像"
                 onClick={() => onSelect(safeIdx - 1)}
                 className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
               >
@@ -765,6 +779,7 @@ function ResultGallery({
             {safeIdx < images.length - 1 && (
               <button
                 type="button"
+                aria-label="次の画像"
                 onClick={() => onSelect(safeIdx + 1)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
               >
@@ -774,6 +789,7 @@ function ResultGallery({
             {/* Close button */}
             <button
               type="button"
+              aria-label="閉じる"
               onClick={() => setLightbox(false)}
               className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70"
             >

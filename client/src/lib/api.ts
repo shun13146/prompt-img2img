@@ -45,6 +45,7 @@ export const api = {
   deleteQueueItem: (id: string) =>
     request<void>(`/queue/${id}`, { method: "DELETE" }),
   clearQueue: () => request<void>("/queue", { method: "DELETE" }),
+  clearHistory: () => request<void>("/queue?status=history", { method: "DELETE" }),
 
   // Queue runner controls
   getQueueStatus: () => request<QueueStatusInfo>("/queue/status"),

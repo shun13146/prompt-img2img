@@ -131,7 +131,7 @@ export function BuilderPage() {
         {/* Action bar - fixed bottom */}
         {activeCharacterId && (
           <div className="shrink-0 border-t p-2 flex gap-1 bg-background">
-            <Button variant="outline" size="sm" className="h-8" onClick={reset}>
+            <Button variant="outline" size="sm" className="h-8" onClick={reset} aria-label="リセット" title="リセット">
               <RotateCcw className="h-3.5 w-3.5" />
             </Button>
             <Button

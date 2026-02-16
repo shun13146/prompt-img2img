@@ -1,8 +1,17 @@
 import { Router } from "express";
 import { readdir, stat } from "fs/promises";
-import { resolve, extname, basename } from "path";
+import { resolve, extname, basename, isAbsolute, normalize } from "path";
 
 const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg", ".webp", ".bmp"]);
+
+/** Validate that a path is absolute and doesn't contain traversal sequences */
+function isValidPath(p: string): boolean {
+  if (!p || !isAbsolute(p)) return false;
+  const normalized = normalize(p);
+  // Reject if path contains traversal after normalization
+  if (normalized.includes("..")) return false;
+  return true;
+}
 
 export function createImageRoutes() {
   const router = Router();
@@ -16,14 +25,21 @@ export function createImageRoutes() {
       return;
     }
 
+    if (!isValidPath(folder)) {
+      res.status(400).json({ error: "Invalid folder path" });
+      return;
+    }
+
     try {
-      const entries = await readdir(folder);
+      const resolvedFolder = normalize(folder);
+      const entries = await readdir(resolvedFolder);
       const images: { name: string; path: string }[] = [];
 
       for (const entry of entries) {
         const ext = extname(entry).toLowerCase();
         if (!IMAGE_EXTS.has(ext)) continue;
-        const fullPath = resolve(folder, entry);
+        // Ensure entry doesn't escape the folder
+        const fullPath = resolve(resolvedFolder, basename(entry));
         const s = await stat(fullPath);
         if (s.isFile()) {
           images.push({ name: entry, path: fullPath });
@@ -48,13 +64,19 @@ export function createImageRoutes() {
       return;
     }
 
-    const ext = extname(filePath).toLowerCase();
+    if (!isValidPath(filePath)) {
+      res.status(400).json({ error: "Invalid file path" });
+      return;
+    }
+
+    const normalized = normalize(filePath);
+    const ext = extname(normalized).toLowerCase();
     if (!IMAGE_EXTS.has(ext)) {
       res.status(400).json({ error: "Not an image file" });
       return;
     }
 
-    res.sendFile(filePath, (err) => {
+    res.sendFile(normalized, (err) => {
       if (err) {
         res.status(404).json({ error: "File not found" });
       }

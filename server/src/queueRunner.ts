@@ -13,6 +13,7 @@ export class QueueRunner {
   private sseClients: Set<Response> = new Set();
   private forgeApi: ForgeApi;
   private progressInterval: ReturnType<typeof setInterval> | null = null;
+  private processing = false; // Guard against concurrent processNext calls
 
   constructor(
     private queueStore: FileStore<QueueData>,
@@ -118,19 +119,25 @@ export class QueueRunner {
   /** Process the next pending item */
   private async processNext() {
     if (this.status !== "running") return;
+    if (this.processing) return; // Prevent concurrent execution
 
-    const data = this.queueStore.get();
-    const next = data.queue.find((q) => q.status === "pending");
+    this.processing = true;
+    try {
+      const data = this.queueStore.get();
+      const next = data.queue.find((q) => q.status === "pending");
 
-    if (!next) {
-      // No more pending tasks
-      this.status = "idle";
-      this.currentTaskId = null;
-      this.sendEvent({ type: "status", data: this.getStatusInfo() });
-      return;
+      if (!next) {
+        // No more pending tasks
+        this.status = "idle";
+        this.currentTaskId = null;
+        this.sendEvent({ type: "status", data: this.getStatusInfo() });
+        return;
+      }
+
+      await this.executeTask(next, false);
+    } finally {
+      this.processing = false;
     }
-
-    await this.executeTask(next, false);
   }
 
   /** Start polling Forge for progress */

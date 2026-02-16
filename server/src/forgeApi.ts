@@ -131,7 +131,7 @@ export class ForgeApi {
       width: params.sourceWidth,
       height: params.sourceHeight,
       denoising_strength: params.settings.denoising_strength,
-      n_iter: params.settings.n_iter || 7,
+      n_iter: params.settings.n_iter || 8,
       batch_size: 1,
     };
 

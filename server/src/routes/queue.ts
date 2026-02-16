@@ -109,10 +109,16 @@ export function createQueueRoutes(
     res.status(204).send();
   });
 
-  // DELETE /api/queue (clear all pending)
-  router.delete("/", async (_req, res) => {
+  // DELETE /api/queue (clear by status: ?status=pending or ?status=history)
+  router.delete("/", async (req, res) => {
     const data = store.get();
-    data.queue = data.queue.filter((q) => q.status !== "pending");
+    const status = req.query.status as string;
+    if (status === "history") {
+      data.queue = data.queue.filter((q) => q.status !== "done" && q.status !== "failed");
+    } else {
+      // Default: clear pending
+      data.queue = data.queue.filter((q) => q.status !== "pending");
+    }
     await store.save(data);
     res.status(204).send();
   });

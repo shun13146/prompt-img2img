@@ -3,10 +3,12 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Check } from "lucide-react";
 
 export function SettingsPage() {
   const { settings, fetch, update } = useSettingsStore();
   const [form, setForm] = useState(settings);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (settings) setForm(settings);
@@ -16,6 +18,8 @@ export function SettingsPage() {
 
   const handleSave = async () => {
     await update(form);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
@@ -100,7 +104,9 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <Button onClick={handleSave}>保存</Button>
+        <Button onClick={handleSave} disabled={saved}>
+          {saved ? <><Check className="h-4 w-4 mr-1" /> 保存済み</> : "保存"}
+        </Button>
       </div>
     </div>
   );

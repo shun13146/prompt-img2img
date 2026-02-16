@@ -44,13 +44,13 @@ async function main() {
       checkpoint_model: "",
       output_folder: "",
       default_settings: {
-        steps: 28,
+        steps: 35,
         sampler: "DPM++ 2M Karras",
         cfg_scale: 7,
         width: 512,
         height: 768,
         denoising_strength: 0.55,
-        n_iter: 7,
+        n_iter: 8,
       },
       mode_a_carry_over: true,
     }
@@ -83,7 +83,7 @@ async function main() {
     }
     if (item.error_message === undefined) { item.error_message = null; migrated = true; }
     if (!item.updated_at) { item.updated_at = item.created_at; migrated = true; }
-    if (!item.settings.n_iter) { item.settings.n_iter = 7; migrated = true; }
+    if (!item.settings.n_iter) { item.settings.n_iter = 8; migrated = true; }
   }
   if (migrated) {
     await queueStore.save(queueData);
