@@ -1,0 +1,2499 @@
+{
+  "categories": [
+    {
+      "id": "eye_state",
+      "label": "目の状態",
+      "type": "single",
+      "zone": "primary",
+      "options": [
+        {
+          "id": "normal",
+          "label": "通常",
+          "prompt": ""
+        },
+        {
+          "id": "closed",
+          "label": "閉じ目",
+          "prompt": "closed eyes",
+          "rules": [
+            "remove_eyes"
+          ]
+        },
+        {
+          "id": "closed_lora",
+          "label": "笑い目閉じ(LoRA)",
+          "prompt": "lora:hotarueye_xl_closed1_v20:1, closed eyes, smile,",
+          "rules": [
+            "remove_eyes"
+          ]
+        },
+        {
+          "id": "wink",
+          "label": "ウインク",
+          "prompt": "wink, one eye closed,"
+        },
+        {
+          "id": "half_closed",
+          "label": "半目",
+          "prompt": "half-closed eyes"
+        }
+      ]
+    },
+    {
+      "id": "gaze",
+      "label": "視線",
+      "type": "single",
+      "zone": "primary",
+      "options": [
+        {
+          "id": "at_viewer",
+          "label": "カメラ目線",
+          "prompt": "looking at viewer,"
+        },
+        {
+          "id": "away",
+          "label": "他方",
+          "prompt": "looking away,"
+        },
+        {
+          "id": "down",
+          "label": "下",
+          "prompt": "looking down,"
+        },
+        {
+          "id": "up",
+          "label": "上",
+          "prompt": "looking up,"
+        },
+        {
+          "id": "sideways",
+          "label": "目を横へ",
+          "prompt": "sideways glance,"
+        },
+        {
+          "id": "averting",
+          "label": "気まずそう",
+          "prompt": "averting eyes,"
+        },
+        {
+          "id": "afar",
+          "label": "遠くを見る",
+          "prompt": "looking afar,"
+        },
+        {
+          "id": "at_another",
+          "label": "何かを見る",
+          "prompt": "looking at another"
+        }
+      ]
+    },
+    {
+      "id": "angle",
+      "label": "角度",
+      "type": "single",
+      "zone": "primary",
+      "options": [
+        {
+          "id": "front",
+          "label": "正面",
+          "prompt": "from front"
+        },
+        {
+          "id": "side",
+          "label": "横",
+          "prompt": "from side"
+        },
+        {
+          "id": "behind",
+          "label": "後ろ",
+          "prompt": "from behind"
+        },
+        {
+          "id": "above",
+          "label": "上",
+          "prompt": "from above"
+        },
+        {
+          "id": "below",
+          "label": "下",
+          "prompt": "from below"
+        },
+        {
+          "id": "dutch",
+          "label": "斜め",
+          "prompt": "dutch angle"
+        }
+      ]
+    },
+    {
+      "id": "face_visibility",
+      "label": "顔の映り",
+      "type": "single",
+      "zone": "primary",
+      "options": [
+        {
+          "id": "visible",
+          "label": "映る",
+          "prompt": ""
+        },
+        {
+          "id": "hidden",
+          "label": "映らない",
+          "prompt": "facing away, eyeless",
+          "rules": [
+            "remove_eyes"
+          ],
+          "optional_tags": [
+            "face out of frame",
+            "head out of frame"
+          ],
+          "optional_rules": [
+            "remove_hair"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "label": "背景",
+      "type": "single",
+      "zone": "primary",
+      "options": [
+        {
+          "id": "white",
+          "label": "白",
+          "prompt": "white background"
+        },
+        {
+          "id": "simple",
+          "label": "シンプル",
+          "prompt": "simple background"
+        }
+      ]
+    },
+    {
+      "id": "expression",
+      "label": "表情",
+      "type": "multi",
+      "zone": "primary",
+      "subcategories": [
+        {
+          "name": "ベース（無・真面目）",
+          "tags": [
+            {
+              "id": "expressionless",
+              "label": "真顔",
+              "prompt": "expressionless,",
+              "favorite": true
+            },
+            {
+              "id": "serious",
+              "label": "真剣",
+              "prompt": "serious,",
+              "favorite": true
+            }
+          ]
+        },
+        {
+          "name": "ポジティブ（笑顔・喜）",
+          "tags": [
+            {
+              "id": "smile",
+              "label": "微笑む",
+              "prompt": "smile,",
+              "favorite": true
+            },
+            {
+              "id": "half_smile",
+              "label": "半笑い",
+              "prompt": "half-smile,",
+              "favorite": false
+            },
+            {
+              "id": "cheerful",
+              "label": "満面の笑み",
+              "prompt": "cheerful,",
+              "favorite": true
+            },
+            {
+              "id": "laughing",
+              "label": "笑う",
+              "prompt": "laughing,",
+              "favorite": true
+            },
+            {
+              "id": "laugh",
+              "label": "爆笑",
+              "prompt": "laugh,",
+              "favorite": false
+            },
+            {
+              "id": "happy",
+              "label": "喜ぶ",
+              "prompt": "happy,",
+              "favorite": true
+            },
+            {
+              "id": "pleasured",
+              "label": "幸せ",
+              "prompt": "looking pleasured,",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "ニュアンス（笑み・含み）",
+          "tags": [
+            {
+              "id": "grin",
+              "label": "にやり",
+              "prompt": "grin,",
+              "favorite": true
+            },
+            {
+              "id": "smirk",
+              "label": "馬鹿にする笑み",
+              "prompt": "smirk,",
+              "favorite": true
+            },
+            {
+              "id": "evil_smile",
+              "label": "悪い笑顔",
+              "prompt": "evil smile,",
+              "favorite": true
+            },
+            {
+              "id": "seductive",
+              "label": "じっと見つめる（色気）",
+              "prompt": "seductive",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "ネガティブ（悲・不安・疲）",
+          "tags": [
+            {
+              "id": "sad",
+              "label": "悲しい",
+              "prompt": "sad,",
+              "favorite": true
+            },
+            {
+              "id": "sad_smile",
+              "label": "苦笑い",
+              "prompt": "sad smile,",
+              "favorite": true
+            },
+            {
+              "id": "worried",
+              "label": "不安（赤面）",
+              "prompt": "worried,",
+              "favorite": false
+            },
+            {
+              "id": "tired",
+              "label": "疲れた（目の下隈）",
+              "prompt": "tired,",
+              "favorite": false
+            },
+            {
+              "id": "tears",
+              "label": "泣く（叫ぶ）",
+              "prompt": "tears,",
+              "favorite": true
+            },
+            {
+              "id": "crying",
+              "label": "むせび泣く",
+              "prompt": "crying,",
+              "favorite": true
+            },
+            {
+              "id": "scared",
+              "label": "おびえ",
+              "prompt": "scared,",
+              "favorite": true
+            },
+            {
+              "id": "traumatized",
+              "label": "絶望",
+              "prompt": "traumatized,",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "困惑・動揺・焦り",
+          "tags": [
+            {
+              "id": "confused",
+              "label": "困惑",
+              "prompt": "confusion,",
+              "favorite": true
+            },
+            {
+              "id": "upset",
+              "label": "動揺",
+              "prompt": "upset,",
+              "favorite": false
+            },
+            {
+              "id": "disappointed",
+              "label": "呆れ",
+              "prompt": "disappointed,",
+              "favorite": true
+            },
+            {
+              "id": "flustered",
+              "label": "慌てる",
+              "prompt": "flustered,",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "怒り・不機嫌",
+          "tags": [
+            {
+              "id": "angry",
+              "label": "怒る",
+              "prompt": "angry,",
+              "favorite": true
+            },
+            {
+              "id": "frown",
+              "label": "ムッと怒る",
+              "prompt": "frown,",
+              "favorite": true
+            },
+            {
+              "id": "raised_eyebrow",
+              "label": "弱むかつく",
+              "prompt": "raised eyebrow,",
+              "favorite": false
+            },
+            {
+              "id": "annoyed",
+              "label": "イラつく",
+              "prompt": "annoyed,",
+              "favorite": true
+            },
+            {
+              "id": "pout",
+              "label": "ふくれっ面",
+              "prompt": "pout,",
+              "favorite": false
+            },
+            {
+              "id": "scowl",
+              "label": "軽くにらむ",
+              "prompt": "scowl,",
+              "favorite": false
+            },
+            {
+              "id": "glaring",
+              "label": "すごく睨む",
+              "prompt": "glaring,",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "驚き・ショック",
+          "tags": [
+            {
+              "id": "surprised",
+              "label": "驚く",
+              "prompt": "surprised,",
+              "favorite": true
+            },
+            {
+              "id": "shocked",
+              "label": "ショック",
+              "prompt": "shocked,",
+              "favorite": true
+            },
+            {
+              "id": "intrigued",
+              "label": "目を開いて見る",
+              "prompt": "intrigued,",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "照れ",
+          "tags": [
+            {
+              "id": "blush",
+              "label": "恥ずかしい（口閉じ）",
+              "prompt": "blush,",
+              "favorite": true
+            },
+            {
+              "id": "embarrassed",
+              "label": "恥ずかしい（あわあわ）",
+              "prompt": "embarrassed,",
+              "favorite": false
+            },
+            {
+              "id": "nervous",
+              "label": "緊張（赤面）",
+              "prompt": "nervous,",
+              "favorite": true
+            }
+          ]
+        },
+        {
+          "name": "小物演出",
+          "tags": [
+            {
+              "id": "sweatdrop",
+              "label": "頬の汗",
+              "prompt": "sweatdrop,",
+              "favorite": false
+            },
+            {
+              "id": "shaded_face",
+              "label": "目の下に暗い影",
+              "prompt": "shaded face,",
+              "favorite": true
+            }
+          ]
+        },
+        {
+          "name": "状態（エロ寄り）",
+          "tags": [
+            {
+              "id": "pain",
+              "label": "痛い",
+              "prompt": "pain,",
+              "favorite": false
+            },
+            {
+              "id": "in_heat",
+              "label": "エロい気分",
+              "prompt": "in heat,",
+              "favorite": false
+            },
+            {
+              "id": "substance_intoxication",
+              "label": "薬漬け",
+              "prompt": "substance intoxication,",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eye_detail",
+      "label": "目元",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "目元",
+          "tags": [
+            {
+              "id": "bedroom_eyes",
+              "label": "半目（艶めかしい）",
+              "prompt": "bedroom eyes,",
+              "favorite": true
+            },
+            {
+              "id": "empty_eyes",
+              "label": "虚ろな目（真っ黒）",
+              "prompt": "empty eyes,",
+              "favorite": false
+            },
+            {
+              "id": "no_pupils",
+              "label": "虚ろな目（色準拠）",
+              "prompt": "no pupils",
+              "favorite": false
+            },
+            {
+              "id": "narrowed_eyes",
+              "label": "細目（呆れ）",
+              "prompt": "narrowed eyes,",
+              "favorite": true
+            },
+            {
+              "id": "half_closed_eyes",
+              "label": "細目（無）",
+              "prompt": "half-closed eyes,",
+              "favorite": false
+            },
+            {
+              "id": "lidded_eyes",
+              "label": "細目（ほほえみ）",
+              "prompt": "lidded eyes",
+              "favorite": false
+            },
+            {
+              "id": "constricted_pupils",
+              "label": "瞳孔小さく",
+              "prompt": "constricted pupils,",
+              "favorite": false
+            },
+            {
+              "id": "wide_eyed",
+              "label": "目を大きく開く",
+              "prompt": "wide eyed,",
+              "favorite": true
+            },
+            {
+              "id": "hollow_eyes",
+              "label": "虚な目",
+              "prompt": "hollow eyes",
+              "favorite": false
+            },
+            {
+              "id": "heart_pupils",
+              "label": "ハート型瞳孔",
+              "prompt": "heart-shaped pupils",
+              "favorite": false
+            },
+            {
+              "id": "sparkling_pupils",
+              "label": "輝く瞳孔（しいたけ）",
+              "prompt": "sparkling pupils",
+              "favorite": false
+            },
+            {
+              "id": "uneven_eyes",
+              "label": "片目半分閉じ",
+              "prompt": "uneven eyes",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mouth",
+      "label": "口元",
+      "type": "multi",
+      "zone": "primary",
+      "subcategories": [
+        {
+          "name": "口元",
+          "tags": [
+            {
+              "id": "open_mouth",
+              "label": "開く口",
+              "prompt": "open mouth",
+              "favorite": true
+            },
+            {
+              "id": "closed_mouth",
+              "label": "閉じる口",
+              "prompt": "closed mouth",
+              "favorite": true
+            },
+            {
+              "id": "wavy_mouth",
+              "label": "波打つ口",
+              "prompt": "wavy mouth,",
+              "favorite": true
+            },
+            {
+              "id": "pout_mouth",
+              "label": "頬を膨らます",
+              "prompt": "pout",
+              "favorite": true
+            },
+            {
+              "id": "biting_lip",
+              "label": "唇を噛む",
+              "prompt": "biting lip, closed mouth,",
+              "favorite": false
+            },
+            {
+              "id": "pursed_lips",
+              "label": "唇を尖らす",
+              "prompt": "pursed lips",
+              "favorite": false
+            },
+            {
+              "id": "chestnut_mouth",
+              "label": "栗みたいな口",
+              "prompt": "chestnut mouth",
+              "favorite": false
+            },
+            {
+              "id": "teeth",
+              "label": "歯を見せて笑う",
+              "prompt": "teeth",
+              "favorite": true
+            },
+            {
+              "id": "clenched_teeth",
+              "label": "歯を食いしばる",
+              "prompt": "clenched teeth",
+              "favorite": false
+            },
+            {
+              "id": "licking_lips",
+              "label": "唇を舐める",
+              "prompt": "licking lips",
+              "favorite": false
+            },
+            {
+              "id": "tongue",
+              "label": "舌を出す",
+              "prompt": "tongue",
+              "favorite": false
+            },
+            {
+              "id": "tongue_out",
+              "label": "舌だけ出す",
+              "prompt": "tongue_out",
+              "favorite": false
+            },
+            {
+              "id": "drooling",
+              "label": "よだれ",
+              "prompt": "drooling",
+              "favorite": false
+            },
+            {
+              "id": "yawn",
+              "label": "あくび",
+              "prompt": "yawn",
+              "favorite": false
+            },
+            {
+              "id": "screaming",
+              "label": "叫ぶ",
+              "prompt": "screaming",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "face_parts",
+      "label": "顔のパーツ",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "顔のパーツ",
+          "tags": [
+            {
+              "id": "thick_eyebrows",
+              "label": "太眉",
+              "prompt": "thick eyebrows",
+              "favorite": false
+            },
+            {
+              "id": "buckteeth",
+              "label": "出っ歯",
+              "prompt": "buckteeth",
+              "favorite": false
+            },
+            {
+              "id": "thick_lips",
+              "label": "厚い唇",
+              "prompt": "thick lips",
+              "favorite": false
+            },
+            {
+              "id": "mustache",
+              "label": "口ひげ",
+              "prompt": "mustache",
+              "favorite": false
+            },
+            {
+              "id": "beard",
+              "label": "長あごひげ",
+              "prompt": "beard",
+              "favorite": false
+            },
+            {
+              "id": "goatee",
+              "label": "短いあごひげ",
+              "prompt": "goatee",
+              "favorite": false
+            },
+            {
+              "id": "facial_scar",
+              "label": "顔の傷",
+              "prompt": "facial scar",
+              "favorite": false
+            },
+            {
+              "id": "eye_scar",
+              "label": "目の傷",
+              "prompt": "eye scar",
+              "favorite": false
+            },
+            {
+              "id": "makeup",
+              "label": "濃い化粧",
+              "prompt": "makeup",
+              "favorite": false
+            },
+            {
+              "id": "eyelashes",
+              "label": "長いまつげ",
+              "prompt": "eyelashes",
+              "favorite": false
+            },
+            {
+              "id": "eyeshadow",
+              "label": "アイシャドウ",
+              "prompt": "eyeshadow",
+              "favorite": false
+            },
+            {
+              "id": "eyeliner",
+              "label": "アイライナー",
+              "prompt": "eyeliner",
+              "favorite": false
+            },
+            {
+              "id": "mascara",
+              "label": "目の周りを黒く",
+              "prompt": "mascara",
+              "favorite": false
+            },
+            {
+              "id": "lips",
+              "label": "リップ",
+              "prompt": "lips",
+              "favorite": false
+            },
+            {
+              "id": "lipstick",
+              "label": "口紅",
+              "prompt": "lipstick",
+              "favorite": false
+            },
+            {
+              "id": "dark_skin",
+              "label": "褐色",
+              "prompt": "dark skin",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "label": "状態",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "状態",
+          "tags": [
+            {
+              "id": "eating",
+              "label": "食べる",
+              "prompt": "eating",
+              "favorite": false
+            },
+            {
+              "id": "sleepy",
+              "label": "眠る",
+              "prompt": "sleepy",
+              "favorite": false
+            },
+            {
+              "id": "wounded",
+              "label": "傷だらけ",
+              "prompt": "wounded",
+              "favorite": false
+            },
+            {
+              "id": "musk_clouds",
+              "label": "熱い湯気",
+              "prompt": "musk clouds",
+              "favorite": false
+            },
+            {
+              "id": "wet",
+              "label": "濡れてる",
+              "prompt": "wet",
+              "favorite": false
+            },
+            {
+              "id": "steam",
+              "label": "熱い",
+              "prompt": "steam",
+              "favorite": false
+            },
+            {
+              "id": "shaking",
+              "label": "ビクン",
+              "prompt": "shaking",
+              "favorite": false
+            },
+            {
+              "id": "trembling",
+              "label": "震える",
+              "prompt": "trembling",
+              "favorite": false
+            },
+            {
+              "id": "hypnosis",
+              "label": "催眠",
+              "prompt": "hypnosis",
+              "favorite": false
+            },
+            {
+              "id": "death",
+              "label": "死んだ",
+              "prompt": "death",
+              "favorite": false
+            },
+            {
+              "id": "cap_over_eyes",
+              "label": "帽子でメカクレ",
+              "prompt": "cap over eyes,",
+              "favorite": false
+            },
+            {
+              "id": "exhausted",
+              "label": "疲れ",
+              "prompt": "(exhausted hair, exhausted clothes:1.2),",
+              "favorite": false
+            },
+            {
+              "id": "head_out_of_frame",
+              "label": "顔枠外",
+              "prompt": "head out of frame",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_head",
+      "label": "ポーズ: 頭・首の向き",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "頭・首の向き",
+          "tags": [
+            {
+              "id": "head_tilt",
+              "label": "首をかしげる",
+              "prompt": "head tilt",
+              "favorite": true
+            },
+            {
+              "id": "head_down",
+              "label": "下を向く",
+              "prompt": "head down",
+              "favorite": false
+            },
+            {
+              "id": "head_back",
+              "label": "頭を後ろに反らす",
+              "prompt": "head back",
+              "favorite": true
+            },
+            {
+              "id": "head_turn",
+              "label": "頭を横に向ける",
+              "prompt": "head turn",
+              "favorite": false
+            },
+            {
+              "id": "head_shake",
+              "label": "首を振る",
+              "prompt": "head shake",
+              "favorite": false
+            },
+            {
+              "id": "head_nod",
+              "label": "うなずく",
+              "prompt": "head nod",
+              "favorite": false
+            },
+            {
+              "id": "tilting_head_up",
+              "label": "顎を上げる",
+              "prompt": "tilting head up",
+              "favorite": false
+            },
+            {
+              "id": "tilting_head_down",
+              "label": "顎を下げる",
+              "prompt": "tilting head down",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_hand_head",
+      "label": "ポーズ: 手【頭・顔まわり】",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "腕の位置",
+          "tags": [
+            {
+              "id": "arms_up",
+              "label": "両腕を上げる",
+              "prompt": "arms up",
+              "favorite": false
+            },
+            {
+              "id": "arm_up",
+              "label": "片腕を上げる",
+              "prompt": "arm up",
+              "favorite": false
+            },
+            {
+              "id": "arm_above_head",
+              "label": "腕を頭の上に上げる",
+              "prompt": "arm above head",
+              "favorite": false
+            },
+            {
+              "id": "arms_at_sides",
+              "label": "腕を体の横に",
+              "prompt": "arms at sides",
+              "favorite": false
+            },
+            {
+              "id": "arms_crossed_behind_head",
+              "label": "頭の後ろで腕を交差させる",
+              "prompt": "arms crossed behind head",
+              "favorite": false
+            },
+            {
+              "id": "arm_across_waist",
+              "label": "腕を腰に回す",
+              "prompt": "arm across waist",
+              "favorite": false
+            },
+            {
+              "id": "shrugging",
+              "label": "肩をすくめる",
+              "prompt": "shrugging",
+              "favorite": true
+            },
+            {
+              "id": "flexing",
+              "label": "腕の筋肉を見せる（力こぶ）",
+              "prompt": "flexing",
+              "favorite": false
+            },
+            {
+              "id": "arm_support",
+              "label": "腕で体重を支える",
+              "prompt": "arm support",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "頭・顔まわり",
+          "tags": [
+            {
+              "id": "scratching_head",
+              "label": "頭をかく",
+              "prompt": "scratching head",
+              "favorite": false
+            },
+            {
+              "id": "headpat",
+              "label": "頭を撫でる",
+              "prompt": "headpat",
+              "favorite": false
+            },
+            {
+              "id": "hands_on_own_head",
+              "label": "頭を抱える",
+              "prompt": "hands on own head",
+              "favorite": false
+            },
+            {
+              "id": "put_hands_behind_head",
+              "label": "手を頭の後ろに回す",
+              "prompt": "put hands behind head",
+              "favorite": true
+            },
+            {
+              "id": "wiping_forehead",
+              "label": "額をぬぐう",
+              "prompt": "wiping forehead",
+              "favorite": false
+            },
+            {
+              "id": "hands_on_own_cheeks",
+              "label": "頬に手を当てる",
+              "prompt": "hands on own cheeks",
+              "favorite": false
+            },
+            {
+              "id": "head_rest",
+              "label": "頬杖",
+              "prompt": "head rest",
+              "favorite": true
+            },
+            {
+              "id": "hand_on_own_chin",
+              "label": "顎に手を当てる",
+              "prompt": "hand on own chin",
+              "favorite": false
+            },
+            {
+              "id": "hand_over_own_mouth",
+              "label": "手を口で覆う",
+              "prompt": "hand over own mouth",
+              "favorite": false
+            },
+            {
+              "id": "facepalm",
+              "label": "顔を手で覆う（悔しそう）",
+              "prompt": "facepalm",
+              "favorite": false
+            },
+            {
+              "id": "peeking_through_fingers",
+              "label": "指の間から覗く",
+              "prompt": "peeking through fingers",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "髪・首・肩",
+          "tags": [
+            {
+              "id": "holding_own_hair",
+              "label": "髪を持つ",
+              "prompt": "holding own hair",
+              "favorite": false
+            },
+            {
+              "id": "hand_in_own_hair",
+              "label": "髪をかき上げる",
+              "prompt": "hand in own hair",
+              "favorite": false
+            },
+            {
+              "id": "hair_flip",
+              "label": "髪をかき分ける",
+              "prompt": "hair flip",
+              "favorite": false
+            },
+            {
+              "id": "holding_necklace",
+              "label": "ネックレスを握る",
+              "prompt": "holding necklace",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_neck",
+              "label": "首に手を置く",
+              "prompt": "hand on own neck",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_shoulder",
+              "label": "肩に手を置く",
+              "prompt": "hand on own shoulder",
+              "favorite": false
+            },
+            {
+              "id": "salute",
+              "label": "敬礼",
+              "prompt": "salute",
+              "favorite": false
+            },
+            {
+              "id": "straight_arm_salute",
+              "label": "腕を真っ直ぐにした敬礼",
+              "prompt": "straight-arm salute",
+              "favorite": false
+            },
+            {
+              "id": "scratching_cheek",
+              "label": "頬をかく",
+              "prompt": "scratching cheek",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_hand_body",
+      "label": "ポーズ: 手【胴体・腕まわり】",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "胴体・腕まわり",
+          "tags": [
+            {
+              "id": "reaching",
+              "label": "手を横に伸ばす",
+              "prompt": "reaching",
+              "favorite": false
+            },
+            {
+              "id": "outstretched_arm",
+              "label": "手を前に出す",
+              "prompt": "outstretched_arm",
+              "favorite": false
+            },
+            {
+              "id": "spread_arms",
+              "label": "手を広げる",
+              "prompt": "spread arms",
+              "favorite": false
+            },
+            {
+              "id": "open_hand",
+              "label": "手を開く",
+              "prompt": "open hand",
+              "favorite": false
+            },
+            {
+              "id": "waving",
+              "label": "手を振る",
+              "prompt": "waving",
+              "favorite": false
+            },
+            {
+              "id": "crossed_arms",
+              "label": "腕を組む",
+              "prompt": "crossed arms",
+              "favorite": true
+            },
+            {
+              "id": "arm_behind_back",
+              "label": "手を後ろに回す",
+              "prompt": "arm behind back",
+              "favorite": true
+            },
+            {
+              "id": "hand_on_own_arm",
+              "label": "腕に手を置く",
+              "prompt": "hand on own arm",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_elbow",
+              "label": "肘に手を付ける",
+              "prompt": "hand on own elbow",
+              "favorite": false
+            },
+            {
+              "id": "elbows_on_table",
+              "label": "肘をつく",
+              "prompt": "elbows on table",
+              "favorite": true
+            },
+            {
+              "id": "holding_own_wrist",
+              "label": "手首を持つ",
+              "prompt": "holding own wrist",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_hip",
+              "label": "腰に手を当てる",
+              "prompt": "hand on own hip",
+              "favorite": true
+            },
+            {
+              "id": "hand_in_pocket",
+              "label": "ポケットに手を入れる",
+              "prompt": "hand in my pocket",
+              "favorite": true
+            },
+            {
+              "id": "hands_in_opposite_sleeves",
+              "label": "反対の袖に手を入れる",
+              "prompt": "hands in opposite sleeves",
+              "favorite": false
+            },
+            {
+              "id": "lean_against_wall",
+              "label": "壁に寄り掛かる",
+              "prompt": "lean against wall",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_hand_torso",
+      "label": "ポーズ: 手【胸・腹・膝など】",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "胸・腹・膝など",
+          "tags": [
+            {
+              "id": "hands_on_own_chest",
+              "label": "胸に手を置く",
+              "prompt": "hands on own chest",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_stomach",
+              "label": "お腹を押さえる",
+              "prompt": "hand on own stomach",
+              "favorite": false
+            },
+            {
+              "id": "hand_on_own_thigh",
+              "label": "太ももに手を置く",
+              "prompt": "hand on own thigh",
+              "favorite": true
+            },
+            {
+              "id": "hand_on_own_knee",
+              "label": "膝に手を置く",
+              "prompt": "hand on own knee",
+              "favorite": false
+            },
+            {
+              "id": "own_hands_together",
+              "label": "手を合わせる（祈る）",
+              "prompt": "own hands together",
+              "favorite": false
+            },
+            {
+              "id": "palms_together",
+              "label": "手を組まずに合わせる",
+              "prompt": "palms together",
+              "favorite": false
+            },
+            {
+              "id": "cupping_hands",
+              "label": "両手ですくう",
+              "prompt": "cupping hands",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_hand_prop",
+      "label": "ポーズ: 手【小物・動作など】",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "小物・動作",
+          "tags": [
+            {
+              "id": "hang_basket",
+              "label": "バスケットを腕にかける",
+              "prompt": "hang basket",
+              "favorite": false
+            },
+            {
+              "id": "skirt_hold_down",
+              "label": "スカートを手で押さえる",
+              "prompt": "skirt hold down",
+              "favorite": false
+            },
+            {
+              "id": "clenched_hand",
+              "label": "拳を握る",
+              "prompt": "clenched hand",
+              "favorite": true
+            },
+            {
+              "id": "raised_fist",
+              "label": "拳を突き上げる",
+              "prompt": "raised fist",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_fingers",
+      "label": "ポーズ: 指",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "基本",
+          "tags": [
+            {
+              "id": "fingers_to_cheeks",
+              "label": "指を頬に当てる",
+              "prompt": "fingers to cheeks",
+              "favorite": false
+            },
+            {
+              "id": "index_finger_raised",
+              "label": "人差し指を立てる",
+              "prompt": "index finger raised",
+              "favorite": true
+            },
+            {
+              "id": "spread_fingers",
+              "label": "指を広げる",
+              "prompt": "spread fingers",
+              "favorite": false
+            },
+            {
+              "id": "picking",
+              "label": "つまむ",
+              "prompt": "picking",
+              "favorite": false
+            },
+            {
+              "id": "pointing_finger",
+              "label": "指をさす",
+              "prompt": "pointing finger",
+              "favorite": false
+            },
+            {
+              "id": "claw_pose",
+              "label": "ガオーポーズ",
+              "prompt": "claw pose",
+              "favorite": false
+            },
+            {
+              "id": "curled_fingers",
+              "label": "指をカールさせる",
+              "prompt": "curled fingers",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "指差し系",
+          "tags": [
+            {
+              "id": "pointing",
+              "label": "指差し",
+              "prompt": "pointing",
+              "favorite": false
+            },
+            {
+              "id": "pointing_at_another",
+              "label": "別の対象を指差す",
+              "prompt": "pointing at another",
+              "favorite": false
+            },
+            {
+              "id": "pointing_at_self",
+              "label": "自分自身を指差す",
+              "prompt": "pointing at self",
+              "favorite": false
+            },
+            {
+              "id": "pointing_at_viewer",
+              "label": "見ている人を指差す",
+              "prompt": "pointing at viewer",
+              "favorite": false
+            },
+            {
+              "id": "pointing_forward",
+              "label": "前を指差す",
+              "prompt": "pointing forward",
+              "favorite": false
+            },
+            {
+              "id": "pointing_up",
+              "label": "上を指差す",
+              "prompt": "pointing up",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "口・顔まわりのジェスチャー",
+          "tags": [
+            {
+              "id": "finger_to_own_chin",
+              "label": "指を顎に当てる",
+              "prompt": "finger to own chin",
+              "favorite": true
+            },
+            {
+              "id": "finger_in_own_mouth",
+              "label": "指を口に入れる",
+              "prompt": "finger in own mouth",
+              "favorite": false
+            },
+            {
+              "id": "shushing",
+              "label": "「シーッ」のジェスチャー",
+              "prompt": "shushing",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "記号・ポーズ系",
+          "tags": [
+            {
+              "id": "thumbs_up",
+              "label": "親指を上げる",
+              "prompt": "thumbs up",
+              "favorite": true
+            },
+            {
+              "id": "thumbs_down",
+              "label": "親指を下げる",
+              "prompt": "thumbs down",
+              "favorite": false
+            },
+            {
+              "id": "pinky_swear",
+              "label": "指切り（小指）",
+              "prompt": "pinky swear",
+              "favorite": false
+            },
+            {
+              "id": "finger_gun",
+              "label": "指で銃を作る",
+              "prompt": "finger gun",
+              "favorite": false
+            },
+            {
+              "id": "finger_heart",
+              "label": "指先でハートを作る",
+              "prompt": "finger heart",
+              "favorite": false
+            },
+            {
+              "id": "heart_hands",
+              "label": "両手でハート形を作る",
+              "prompt": "heart hands",
+              "favorite": false
+            },
+            {
+              "id": "two_finger_salute",
+              "label": "2本指の敬礼",
+              "prompt": "two-finger salute",
+              "favorite": false
+            },
+            {
+              "id": "v_over_eye",
+              "label": "Vサインを目の上で",
+              "prompt": "v over eye",
+              "favorite": false
+            },
+            {
+              "id": "v_over_mouth",
+              "label": "Vサインを口の上で",
+              "prompt": "v over mouth",
+              "favorite": false
+            },
+            {
+              "id": "double_v",
+              "label": "両手でVサイン",
+              "prompt": "double v",
+              "favorite": false
+            },
+            {
+              "id": "w_sign",
+              "label": "3本指でWサイン",
+              "prompt": "w",
+              "favorite": false
+            },
+            {
+              "id": "rectangle",
+              "label": "指で四角を作る",
+              "prompt": "rectangle",
+              "favorite": false
+            },
+            {
+              "id": "finger_frame",
+              "label": "指で四角を作る（同義）",
+              "prompt": "finger frame",
+              "favorite": false
+            },
+            {
+              "id": "double_thumbs_up",
+              "label": "両手で親指を上げる",
+              "prompt": "double thumbs up",
+              "favorite": false
+            },
+            {
+              "id": "double_finger_gun",
+              "label": "両手で指銃を作る",
+              "prompt": "double finger gun",
+              "favorite": false
+            },
+            {
+              "id": "x_fingers",
+              "label": "指を交差させる",
+              "prompt": "x fingers",
+              "favorite": false
+            },
+            {
+              "id": "open_hands",
+              "label": "手を広げる",
+              "prompt": "open hands",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_legs",
+      "label": "ポーズ: 足",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "足の位置",
+          "tags": [
+            {
+              "id": "legs_folded",
+              "label": "足を折りたたむ",
+              "prompt": "legs folded",
+              "favorite": false
+            },
+            {
+              "id": "legs_together",
+              "label": "足を閉じる",
+              "prompt": "legs together",
+              "favorite": false
+            },
+            {
+              "id": "legs_apart",
+              "label": "脚を広げる",
+              "prompt": "legs apart",
+              "favorite": false
+            },
+            {
+              "id": "leg_up",
+              "label": "片足を上げる",
+              "prompt": "leg up",
+              "favorite": false
+            },
+            {
+              "id": "legs_up",
+              "label": "両足を上げる",
+              "prompt": "legs up",
+              "favorite": false
+            },
+            {
+              "id": "knee_up",
+              "label": "片膝を上げる",
+              "prompt": "knee up",
+              "favorite": false
+            },
+            {
+              "id": "knees_up",
+              "label": "両膝を上げる",
+              "prompt": "knees up",
+              "favorite": false
+            },
+            {
+              "id": "knees_to_chest",
+              "label": "両膝を胸に引き寄せる",
+              "prompt": "knees to chest",
+              "favorite": false
+            },
+            {
+              "id": "outstretched_leg",
+              "label": "足を前や横に伸ばす",
+              "prompt": "outstretched leg",
+              "favorite": false
+            },
+            {
+              "id": "leg_lift",
+              "label": "片足を持ち上げる",
+              "prompt": "leg lift",
+              "favorite": false
+            },
+            {
+              "id": "foot_raised",
+              "label": "片足を少し上げる",
+              "prompt": "foot raised",
+              "favorite": false
+            },
+            {
+              "id": "leg_bent_behind",
+              "label": "片足を後ろに曲げる",
+              "prompt": "leg bent behind",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "開脚・広げ",
+          "tags": [
+            {
+              "id": "split",
+              "label": "開脚",
+              "prompt": "split",
+              "favorite": false
+            },
+            {
+              "id": "standing_split",
+              "label": "I字開脚",
+              "prompt": "standing split",
+              "favorite": false
+            },
+            {
+              "id": "spread_legs",
+              "label": "足を広げる",
+              "prompt": "spread legs",
+              "favorite": false
+            },
+            {
+              "id": "legs_spread_apart",
+              "label": "足を大きく開く",
+              "prompt": "legs spread apart",
+              "favorite": false
+            },
+            {
+              "id": "knees_apart_feet_together",
+              "label": "膝を開き足を揃える",
+              "prompt": "knees apart feet together",
+              "favorite": false
+            },
+            {
+              "id": "knees_together_feet_apart",
+              "label": "膝を揃え足を開く",
+              "prompt": "knees together feet apart",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "つま先・足首",
+          "tags": [
+            {
+              "id": "pigeon_toed",
+              "label": "内股",
+              "prompt": "pigeon-toed",
+              "favorite": false
+            },
+            {
+              "id": "tiptoes",
+              "label": "つま先立ち",
+              "prompt": "tiptoes",
+              "favorite": false
+            },
+            {
+              "id": "tiptoe_walk",
+              "label": "つま先立ちで歩く",
+              "prompt": "tiptoe walk",
+              "favorite": false
+            },
+            {
+              "id": "plantar_flexion",
+              "label": "足首を下に向ける",
+              "prompt": "plantar flexion",
+              "favorite": false
+            },
+            {
+              "id": "crossed_ankles",
+              "label": "足首を交差させる",
+              "prompt": "crossed ankles",
+              "favorite": false
+            },
+            {
+              "id": "heels_together",
+              "label": "かかとを揃える",
+              "prompt": "heels together",
+              "favorite": false
+            },
+            {
+              "id": "toes_pointed",
+              "label": "つま先を伸ばす",
+              "prompt": "toes pointed",
+              "favorite": false
+            },
+            {
+              "id": "legs_bent",
+              "label": "膝を曲げる",
+              "prompt": "legs bent",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_static_upper",
+      "label": "ポーズ: 静的な動作（上体）",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "上体",
+          "tags": [
+            {
+              "id": "arched_back",
+              "label": "背中を反らせる",
+              "prompt": "arched back",
+              "favorite": false
+            },
+            {
+              "id": "bridge_pose",
+              "label": "背を弓なりに反らせる",
+              "prompt": "bridge pose",
+              "favorite": false
+            },
+            {
+              "id": "bent_over",
+              "label": "前かがみ（腰から曲げる）",
+              "prompt": "bent over",
+              "favorite": false
+            },
+            {
+              "id": "leaning_forward",
+              "label": "前に寄りかかる",
+              "prompt": "leaning forward",
+              "favorite": true
+            },
+            {
+              "id": "leaning_back",
+              "label": "後ろにもたれかかる",
+              "prompt": "leaning back",
+              "favorite": true
+            },
+            {
+              "id": "leaning",
+              "label": "寄りかかる",
+              "prompt": "leaning",
+              "favorite": false
+            },
+            {
+              "id": "lean_against_wall",
+              "label": "壁に寄り掛かる",
+              "prompt": "lean against wall",
+              "favorite": false
+            },
+            {
+              "id": "back_against_wall",
+              "label": "背を壁につけて立つ",
+              "prompt": "back against wall",
+              "favorite": false
+            },
+            {
+              "id": "leaning_on_something",
+              "label": "何かにもたれかかる",
+              "prompt": "leaning on something",
+              "favorite": false
+            },
+            {
+              "id": "slouching",
+              "label": "猫背（背を丸める）",
+              "prompt": "slouching",
+              "favorite": false
+            },
+            {
+              "id": "folded",
+              "label": "体を折りたたむ（前屈気味）",
+              "prompt": "folded",
+              "favorite": false
+            },
+            {
+              "id": "twisted_torso",
+              "label": "体をねじる／振り返る",
+              "prompt": "twisted torso",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_standing",
+      "label": "ポーズ: 立ち・膝立ち",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "立ち・膝立ち",
+          "tags": [
+            {
+              "id": "standing",
+              "label": "立つ",
+              "prompt": "standing",
+              "favorite": false
+            },
+            {
+              "id": "standing_on_one_leg",
+              "label": "片足立ち",
+              "prompt": "standing on one leg",
+              "favorite": false
+            },
+            {
+              "id": "contrapposto",
+              "label": "コントラポスト",
+              "prompt": "contrapposto",
+              "favorite": false
+            },
+            {
+              "id": "kneeling",
+              "label": "膝立ち",
+              "prompt": "kneeling",
+              "favorite": true
+            },
+            {
+              "id": "on_one_knee",
+              "label": "片膝をつく",
+              "prompt": "on one knee",
+              "favorite": false
+            },
+            {
+              "id": "one_knee",
+              "label": "片膝立ち（別表記）",
+              "prompt": "one knee",
+              "favorite": false
+            },
+            {
+              "id": "kneel",
+              "label": "膝を立てる",
+              "prompt": "kneel",
+              "favorite": false
+            },
+            {
+              "id": "prostration",
+              "label": "土下座",
+              "prompt": "prostration",
+              "favorite": false
+            },
+            {
+              "id": "on_all_fours",
+              "label": "四つん這い",
+              "prompt": "on all fours",
+              "favorite": false
+            },
+            {
+              "id": "squatting",
+              "label": "しゃがむ",
+              "prompt": "squatting",
+              "favorite": true
+            },
+            {
+              "id": "kneeling_forward",
+              "label": "前のめりに膝立ち",
+              "prompt": "kneeling forward",
+              "favorite": false
+            },
+            {
+              "id": "superhero_landing",
+              "label": "三点着地",
+              "prompt": "superhero landing",
+              "favorite": false
+            },
+            {
+              "id": "legs_crossed_standing",
+              "label": "足を組む（立ち姿）",
+              "prompt": "legs crossed",
+              "favorite": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_sitting",
+      "label": "ポーズ: 座る姿勢",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "座る姿勢",
+          "tags": [
+            {
+              "id": "sitting",
+              "label": "座る",
+              "prompt": "sitting",
+              "favorite": false
+            },
+            {
+              "id": "sitting_cross_legged",
+              "label": "胡坐",
+              "prompt": "sitting cross legged",
+              "favorite": false
+            },
+            {
+              "id": "indian_style",
+              "label": "あぐらをかく",
+              "prompt": "indian style",
+              "favorite": false
+            },
+            {
+              "id": "seiza",
+              "label": "正座",
+              "prompt": "seiza",
+              "favorite": true
+            },
+            {
+              "id": "warisa",
+              "label": "割座（W座り）",
+              "prompt": "wariza",
+              "favorite": false
+            },
+            {
+              "id": "yokozuwari",
+              "label": "横座り",
+              "prompt": "yokozuwari",
+              "favorite": false
+            },
+            {
+              "id": "sitting_on_knees",
+              "label": "膝の上に座る（和座り）",
+              "prompt": "sitting on knees",
+              "favorite": false
+            },
+            {
+              "id": "sideways_sitting",
+              "label": "横向きに座る",
+              "prompt": "sideways sitting",
+              "favorite": false
+            },
+            {
+              "id": "crossed_legs",
+              "label": "足を組む",
+              "prompt": "crossed legs",
+              "favorite": true
+            },
+            {
+              "id": "butterfly_sitting",
+              "label": "蝶々座り",
+              "prompt": "butterfly sitting",
+              "favorite": false
+            },
+            {
+              "id": "fetal_position",
+              "label": "胎児の姿勢",
+              "prompt": "fetal position",
+              "favorite": false
+            },
+            {
+              "id": "hugging_own_legs",
+              "label": "膝を抱える",
+              "prompt": "hugging own legs",
+              "favorite": false
+            },
+            {
+              "id": "reclining",
+              "label": "もたれかかる（座位）",
+              "prompt": "reclining",
+              "favorite": false
+            },
+            {
+              "id": "sitting_backwards",
+              "label": "後ろ向きに座る",
+              "prompt": "sitting backwards",
+              "favorite": false
+            },
+            {
+              "id": "sitting_on_the_floor",
+              "label": "床に座る",
+              "prompt": "sitting on the floor",
+              "favorite": false
+            },
+            {
+              "id": "side_lean_sitting",
+              "label": "体を横に傾けて座る",
+              "prompt": "side lean sitting",
+              "favorite": false
+            },
+            {
+              "id": "sitting_on_one_knee",
+              "label": "膝を立てて座る",
+              "prompt": "sitting on one knee",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_lying",
+      "label": "ポーズ: 寝る姿勢",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "寝る姿勢",
+          "tags": [
+            {
+              "id": "lying",
+              "label": "横になる",
+              "prompt": "lying",
+              "favorite": true
+            },
+            {
+              "id": "on_back",
+              "label": "仰向け",
+              "prompt": "on back",
+              "favorite": false
+            },
+            {
+              "id": "on_side",
+              "label": "横向き",
+              "prompt": "on side",
+              "favorite": false
+            },
+            {
+              "id": "on_stomach",
+              "label": "うつ伏せ",
+              "prompt": "on stomach",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pose_dynamic",
+      "label": "ポーズ: 動的な動作",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "移動",
+          "tags": [
+            {
+              "id": "walking",
+              "label": "歩く",
+              "prompt": "walking",
+              "favorite": true
+            },
+            {
+              "id": "running",
+              "label": "走る",
+              "prompt": "running",
+              "favorite": false
+            },
+            {
+              "id": "sprinting",
+              "label": "全速力で走る",
+              "prompt": "sprinting",
+              "favorite": false
+            },
+            {
+              "id": "jumping",
+              "label": "跳ぶ",
+              "prompt": "jumping",
+              "favorite": false
+            },
+            {
+              "id": "leaping",
+              "label": "跳躍",
+              "prompt": "leaping",
+              "favorite": false
+            },
+            {
+              "id": "falling",
+              "label": "落ちる",
+              "prompt": "falling",
+              "favorite": false
+            },
+            {
+              "id": "falling_down",
+              "label": "倒れる",
+              "prompt": "falling down",
+              "favorite": false
+            },
+            {
+              "id": "sitting_up",
+              "label": "起き上がる",
+              "prompt": "sitting up",
+              "favorite": false
+            },
+            {
+              "id": "crawling",
+              "label": "這う",
+              "prompt": "crawling",
+              "favorite": false
+            },
+            {
+              "id": "climbing",
+              "label": "登る",
+              "prompt": "climbing",
+              "favorite": false
+            },
+            {
+              "id": "dancing",
+              "label": "踊る",
+              "prompt": "dancing",
+              "favorite": false
+            }
+          ]
+        },
+        {
+          "name": "アクション",
+          "tags": [
+            {
+              "id": "running_forward",
+              "label": "前方へ走る",
+              "prompt": "running forward",
+              "favorite": false
+            },
+            {
+              "id": "running_away",
+              "label": "逃げる",
+              "prompt": "running away",
+              "favorite": false
+            },
+            {
+              "id": "looking_back_while_running",
+              "label": "振り返りながら走る",
+              "prompt": "looking back while running",
+              "favorite": false
+            },
+            {
+              "id": "jump_back",
+              "label": "後ろに跳ぶ",
+              "prompt": "jump back",
+              "favorite": false
+            },
+            {
+              "id": "jump_up",
+              "label": "上に跳ぶ",
+              "prompt": "jump up",
+              "favorite": false
+            },
+            {
+              "id": "throwing",
+              "label": "投げる",
+              "prompt": "throwing",
+              "favorite": false
+            },
+            {
+              "id": "punching",
+              "label": "殴る",
+              "prompt": "punching",
+              "favorite": false
+            },
+            {
+              "id": "kicking",
+              "label": "蹴る",
+              "prompt": "kicking",
+              "favorite": false
+            },
+            {
+              "id": "turning_around",
+              "label": "振り返る",
+              "prompt": "turning around",
+              "favorite": false
+            },
+            {
+              "id": "skipping",
+              "label": "軽く跳ねるように歩く",
+              "prompt": "skipping",
+              "favorite": false
+            },
+            {
+              "id": "landing",
+              "label": "着地する",
+              "prompt": "landing",
+              "favorite": false
+            },
+            {
+              "id": "reaching_out_while_running",
+              "label": "走りながら手を伸ばす",
+              "prompt": "reaching out while running",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "focus",
+      "label": "注目点",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "注目点",
+          "tags": [
+            {
+              "id": "hip_focus",
+              "label": "腰",
+              "prompt": "hip focus",
+              "favorite": false
+            },
+            {
+              "id": "foot_focus",
+              "label": "足",
+              "prompt": "foot focus",
+              "favorite": false
+            },
+            {
+              "id": "eye_focus",
+              "label": "目",
+              "prompt": "eye focus",
+              "favorite": false
+            },
+            {
+              "id": "back_focus",
+              "label": "背中",
+              "prompt": "back focus",
+              "favorite": false
+            },
+            {
+              "id": "breast_focus",
+              "label": "胸",
+              "prompt": "breast focus",
+              "favorite": false
+            },
+            {
+              "id": "hand_focus",
+              "label": "手",
+              "prompt": "hand focus",
+              "favorite": false
+            },
+            {
+              "id": "armpit_focus",
+              "label": "腋",
+              "prompt": "armpit focus",
+              "favorite": false
+            },
+            {
+              "id": "navel_focus",
+              "label": "へそ",
+              "prompt": "navel focus",
+              "favorite": false
+            },
+            {
+              "id": "hair_focus",
+              "label": "髪",
+              "prompt": "hair focus",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "label": "光",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "光",
+          "tags": [
+            {
+              "id": "lighting_front",
+              "label": "正面光",
+              "prompt": "lighting front",
+              "favorite": false
+            },
+            {
+              "id": "lighting_side",
+              "label": "横光",
+              "prompt": "lighting side",
+              "favorite": false
+            },
+            {
+              "id": "lighting_behind",
+              "label": "逆光",
+              "prompt": "lighting behind",
+              "favorite": false
+            },
+            {
+              "id": "shine",
+              "label": "輝き",
+              "prompt": "shine",
+              "favorite": false
+            },
+            {
+              "id": "sunset_light",
+              "label": "夕日の光",
+              "prompt": "sunset light",
+              "favorite": false
+            },
+            {
+              "id": "glowing",
+              "label": "発光",
+              "prompt": "glowing",
+              "favorite": false
+            },
+            {
+              "id": "street_light",
+              "label": "街明かり",
+              "prompt": "street light",
+              "favorite": false
+            },
+            {
+              "id": "lamplight",
+              "label": "ランプ",
+              "prompt": "lamplight",
+              "favorite": false
+            },
+            {
+              "id": "natural_light",
+              "label": "自然光",
+              "prompt": "natural light",
+              "favorite": false
+            },
+            {
+              "id": "cinematic_lighting",
+              "label": "映画的照明",
+              "prompt": "cinematic lighting",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "time_of_day",
+      "label": "時間帯",
+      "type": "single",
+      "zone": "secondary",
+      "options": [
+        {
+          "id": "none",
+          "label": "指定なし",
+          "prompt": ""
+        },
+        {
+          "id": "morning",
+          "label": "朝",
+          "prompt": "morning,"
+        },
+        {
+          "id": "day",
+          "label": "昼",
+          "prompt": "day,"
+        },
+        {
+          "id": "night",
+          "label": "夜",
+          "prompt": "night"
+        }
+      ]
+    },
+    {
+      "id": "r18_expression",
+      "label": "R18: 表情",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "R18表情",
+          "tags": [
+            {
+              "id": "after_sex",
+              "label": "情事後",
+              "prompt": "after sex",
+              "favorite": false
+            },
+            {
+              "id": "ahegao",
+              "label": "アヘ顔",
+              "prompt": "ahegao",
+              "favorite": false
+            },
+            {
+              "id": "fucked_silly",
+              "label": "アヘ顔（変種）",
+              "prompt": "fucked silly",
+              "favorite": false
+            },
+            {
+              "id": "sexual_ecstasy",
+              "label": "性的絶頂",
+              "prompt": "sexual ecstasy",
+              "favorite": false
+            },
+            {
+              "id": "naughty_face",
+              "label": "淫靡な笑み",
+              "prompt": "naughty face",
+              "favorite": false
+            },
+            {
+              "id": "seductive_smile",
+              "label": "誘う笑顔",
+              "prompt": "seductive smile",
+              "favorite": false
+            },
+            {
+              "id": "emotionless_sex",
+              "label": "平然とした",
+              "prompt": "expressionless",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r18_position",
+      "label": "R18: 体位",
+      "type": "multi",
+      "zone": "secondary",
+      "subcategories": [
+        {
+          "name": "体位",
+          "tags": [
+            {
+              "id": "fellatio",
+              "label": "フェラ",
+              "prompt": "fellatio,",
+              "favorite": false
+            },
+            {
+              "id": "missionary",
+              "label": "正常位",
+              "prompt": "missionary position,",
+              "favorite": false
+            },
+            {
+              "id": "girl_on_top",
+              "label": "騎乗位",
+              "prompt": "girl on top, straddling,",
+              "favorite": false
+            },
+            {
+              "id": "top_down_bottom_up",
+              "label": "寝バック",
+              "prompt": "top down bottom up,",
+              "favorite": false
+            },
+            {
+              "id": "hug_from_behind",
+              "label": "立ちバック",
+              "prompt": "hug from behind,",
+              "favorite": false
+            },
+            {
+              "id": "finger_to_breast",
+              "label": "胸を指でつく",
+              "prompt": "finger to breast,",
+              "favorite": false
+            },
+            {
+              "id": "submission_pose",
+              "label": "服従のポーズ",
+              "prompt": "lying, on back, knees up, legs apart, paw pose,",
+              "favorite": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

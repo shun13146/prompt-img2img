@@ -1,0 +1,342 @@
+{
+  "characters": [
+    {
+      "id": "mashiro",
+      "name": "白鳥真白",
+      "outfits": [
+        {
+          "id": "mashiro_nun",
+          "name": "シスター服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:siratori_v1:1> siratori,,",
+            "hair": "platinum blonde hair hair,light brown hair,short hair,(asymmetry bangs:1.1),(asymmetry hair:1.1),hair between eyes,(gold hairpin:1.1),straight hair,sidecut,",
+            "eyes": "yellow eyes, tareme,<lora:eyecolle_xl_code725:1>,",
+            "features": "1woman,solo,midium breasts,cross dangling earrings,cross necklace,teenager,",
+            "clothing": "(nun:1.1),checkered pattern dress,white colored,black dress,,taut dress,black sleeves,long sleeves,,white sleeve cuffs,"
+          }
+        },
+        {
+          "id": "mashiro_uniform",
+          "name": "制服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:siratori_v1:1> siratori,,",
+            "hair": "platinum blonde hair hair,light brown hair,short hair,(asymmetry bangs:1.1),(asymmetry hair:1.1),hair between eyes,(gold hairpin:1.1),straight hair,sidecut,",
+            "eyes": "yellow eyes, tareme,<lora:eyecolle_xl_code725:1>,",
+            "features": "1woman,solo,midium breasts,cross dangling earrings,cross necklace,teenager,",
+            "clothing": "long-sleeved sailor school uniform, pleated skirt,brown color,white shirt,high-neck,red ribbon,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "オタギャル - メインヒロイン",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "chiyo",
+      "name": "千代",
+      "outfits": [
+        {
+          "id": "chiyo_default",
+          "name": "和服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:chiyo_v1:0.7> ,chiyo,",
+            "hair": "blonde hair hair,brown hair,midium hair, crossed bangs,choppy bangs,long bang,hair between eyes,twintails,wavy hair,,",
+            "eyes": "red eyes, turime,<lora:eyecolle_xl_code125:1>,<lora:sdxl-eye-hanme_01:1>,",
+            "features": "1female,solo,small breasts,teenager,",
+            "clothing": "red haori,long haori,japanese clothes,black kimono,short kimono,gold pattern,gold obi tied,purple ribbon,,,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "オタギャル - 千代",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "himuro",
+      "name": "氷室大輔",
+      "outfits": [
+        {
+          "id": "himuro_default",
+          "name": "私服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.4>, <lora:add-detail-xl:1>,<lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:himuro_v1:0.8> ,himuro,,",
+            "hair": "black hair,midium hair,hair between eyes,low ponytail,straight hair,messy hair,mullet hairstyle,(wolf cut:1.1)<lora:Wolf_Cut:1>,",
+            "eyes": "blue eyes,(turime:1.1) <lora:sdxl-eye-iris-width:1> ,",
+            "features": "man,guy,male,solo,mature male,twenties,male_typeC,",
+            "clothing": "black shirts,loose,open collar,shirt,collared shirt,untucked shirt,black jeans,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "オタギャル - 氷室大輔（男性キャラ）",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "sakura",
+      "name": "朝倉さくら",
+      "outfits": [
+        {
+          "id": "sakura_police",
+          "name": "警察制服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>,<lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:asakurasakura_v1:1> ,asakurasakura,",
+            "hair": "black hair,midium hair,hair over eye,long bang,(asymmetry bangs:1.1),blunt bangs,sidelocks,(black purple hair:0.3),(folded ponytail:1.2),(messy hair:0.5),police hat,",
+            "eyes": "empty eyes,,navy eyes,,(turime:1.1),jitome, <lora:eyecolle_xl_code147:1>,",
+            "features": "1woman,midium breasts,twenties female,loose necktie,navy necktie,short necktie,black gloves,",
+            "clothing": "police,,police uniform,light blue jacket,light blue shirts,navy pants,black shorts,black pantyhose,golden badge,golden bottun,sleeves rolled up,navy sleeve cuffs,midriff,untucked shirt,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "オタギャル - 朝倉さくら（警察官）",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "kohaku",
+      "name": "白鳥琥珀",
+      "outfits": [
+        {
+          "id": "kohaku_default",
+          "name": "黒ドレス",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:shiratorikohaku_v1:0.8>,shiratorikohaku,",
+            "hair": "platinum blonde hair hair,silver hair,longt hair,,straight hair,hair intakes,hime cut,blunt bangs,",
+            "eyes": "yellow eyes,turime,<lora:sdxl-eye-hanme_01:1>,<lora:eyecolle_xl_code172:1>",
+            "features": "1woman,solo,small breasts,,teenager,",
+            "clothing": "black dress,off_shoulder_dress,frills,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "オタギャル - 白鳥琥珀（車椅子キャラ）。block3に wheelchair, sitting, wood wheelchair を常時追加すること",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "karen",
+      "name": "シスターカレン",
+      "outfits": [
+        {
+          "id": "karen_nun",
+          "name": "シスター服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:sisterKaren_v1:1>,sisterKaren,",
+            "hair": "blonde hair,midium hair,(curled bangs:1.3),(asymmetry bangs:1.3), (swept bangs:1.2),wolf cut,,(bangs:1.1),flipped hair,(hair between eyes:1.2),",
+            "eyes": "blue eyes,,(turime:1.1),<lora:eyecolle_xl_code720:1>,",
+            "features": "1woman,midium breasts,ring,cross dangling earrings,cross necklace,twenties female,",
+            "clothing": "(nun:1.3),black dress,,taut dress,cross line,asymmetrical dress,clothing cutout,,midium breasts,black sleeves,long sleeves,white sleeve cuffs,maxi skirt,,white colored,garter belt,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "メイン - シスターカレン（正式版プロンプト）",
+      "group": "神様のかくしごと/メイン"
+    },
+    {
+      "id": "aoki",
+      "name": "青木（ギャル）",
+      "outfits": [
+        {
+          "id": "aoki_default",
+          "name": "制服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>,<lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:gyaruaoki_v1:1> gyaruaoki,",
+            "hair": "brown hair,long hair,(long bang:1.2),(asymmetry bangs:1.2), ,forehead,,(slicked back hair:1.4),straight hair,,sidecut,",
+            "eyes": "brown eyes,,(turime:1.2), <lora:eyecolle_xl_code147:1>, <lora:sdxl-eye_shihaku:1>,red eyeliner,",
+            "features": "1woman,midium breasts,teenager,,gyaru,lips,",
+            "clothing": "school uniform,thin bowknot,red ribbon,partially unbuttoned,white shirts,brown skirt,yellow,cardigan around waist,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "モブ - 青木（ギャル）",
+      "group": "神様のかくしごと/モブ"
+    },
+    {
+      "id": "otakukun",
+      "name": "オタク君",
+      "outfits": [
+        {
+          "id": "otakukun_default",
+          "name": "パーカー",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:otakukun_v1:1>,otakukun,",
+            "hair": "black hair,short hair,short bang,otaku,",
+            "eyes": "black eyes,<lora:sdxl-eye-iris-width:1> , <lora:sdxl-eye-hanme_01:1>,tareme,",
+            "features": "man,guy,male,solo,teenager,male_typeC,black-framed eyewear,round eyewear,",
+            "clothing": "navy hoodie,black pants,,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "モブ - オタク君（男性）",
+      "group": "神様のかくしごと/モブ"
+    },
+    {
+      "id": "kanekashi",
+      "name": "金貸し",
+      "outfits": [
+        {
+          "id": "kanekashi_default",
+          "name": "シャツ",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>,<lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:kanekasshi_v1:1>,kanekasshi,",
+            "hair": "golden hair,short hair,very short hair,slicked back hair,",
+            "eyes": "black eyes,(turime:1.2),<lora:sdxl-eye-iris-width:1.5> , <lora:sdxl-eye-hanme_01:1>",
+            "features": "man,guy,male,solo,mature male,male_typeC,muscular,round face,(fat:0.5),",
+            "clothing": "white shirts,partially unbuttoned,black pants,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "DPM++ 2M Karras",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8,
+        "adetailer": {
+          "model": "face_yolov8n.pt",
+          "prompt": "",
+          "negative_prompt": ""
+        }
+      },
+      "memo": "モブ - 金貸し（男性）",
+      "group": "神様のかくしごと/モブ"
+    }
+  ]
+}
