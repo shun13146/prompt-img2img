@@ -27,7 +27,7 @@ function createEmptyCharacter(): Character {
     group: "神様のかくしごと/メイン",
     outfits: [createEmptyOutfit()],
     settings: {
-      steps: 28,
+      steps: 35,
       sampler: "DPM++ 2M Karras",
       cfg_scale: 7,
       width: 512,
@@ -102,13 +102,13 @@ export function CharactersPage() {
                 )}
               </div>
               <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={() => handleEdit(char)}>
+                <Button variant="ghost" size="icon" aria-label="編集" onClick={() => handleEdit(char)}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleDuplicate(char)}>
+                <Button variant="ghost" size="icon" aria-label="複製" onClick={() => handleDuplicate(char)}>
                   <Copy className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(char.id)}>
+                <Button variant="ghost" size="icon" aria-label="削除" onClick={() => handleDelete(char.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

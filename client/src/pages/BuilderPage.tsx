@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Copy, Check, Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CharacterSelector } from "@/components/prompt/CharacterSelector";
