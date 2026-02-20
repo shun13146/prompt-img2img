@@ -77,4 +77,9 @@ export const api = {
     request<{ name: string; path: string }[]>(`/images/list?folder=${encodeURIComponent(folder)}`),
   getImageUrl: (path: string) =>
     `${BASE}/images/file?path=${encodeURIComponent(path)}`,
+  saveImage: (sourcePath: string, destinationFolder: string, filename?: string) =>
+    request<{ saved_path: string }>("/images/save", {
+      method: "POST",
+      body: JSON.stringify({ sourcePath, destinationFolder, filename }),
+    }),
 };

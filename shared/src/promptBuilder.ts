@@ -62,7 +62,8 @@ export function buildPrompt(
   freeText: string,
   faceVisibilityOptions?: FaceVisibilityOptions,
   propsText?: string,
-  accessoriesText?: string
+  accessoriesText?: string,
+  poseFreeText?: string
 ): PromptResult {
   const activeRules = collectActiveRules(selections, tagDb, faceVisibilityOptions);
 
@@ -115,16 +116,14 @@ export function buildPrompt(
   // Order matches user's template:
   // 表情 → 視線 → 目の状態 → 目の形 → 口の形 → 顔パーツ → 状態 → ポーズ → 注目点 → 背景 → 角度
 
-  // Gaze (from single-select) — 視線 — skip if face hidden or eyes closed
+  // Gaze (multi-select, weighted) — 視線 — skip if face hidden or eyes closed
   if (!faceHidden && !eyesClosed) {
-    const gazeTag = getOptionPrompt(selections, tagDb, "gaze");
-    if (gazeTag) block3Parts.push(gazeTag);
+    block3Parts.push(...selections.gaze.map(formatWeightedTag));
   }
 
-  // Eye state (from single-select) — 目の状態 — skip if face hidden
+  // Eye state (multi-select, weighted) — 目の状態 — skip if face hidden
   if (!faceHidden) {
-    const eyeStateTag = getOptionPrompt(selections, tagDb, "eye_state");
-    if (eyeStateTag) block3Parts.push(eyeStateTag);
+    block3Parts.push(...selections.eye_state.map(formatWeightedTag));
   }
 
   // Eye detail tags (multi, weighted) — 目の形 — skip if face hidden or eyes closed
@@ -148,6 +147,11 @@ export function buildPrompt(
   // Pose tags (all pose categories, weighted) — ポーズ
   block3Parts.push(...collectPoseTags(selections).map(formatWeightedTag));
 
+  // Pose free text — ポーズ自由入力
+  if (poseFreeText && poseFreeText.trim()) {
+    block3Parts.push(poseFreeText.trim());
+  }
+
   // Focus tags (multi, weighted) — 注目点
   block3Parts.push(...selections.focus.map(formatWeightedTag));
 
@@ -165,9 +169,8 @@ export function buildPrompt(
     block3Parts.push(accessoriesText.trim());
   }
 
-  // Angle (from single-select) — 角度
-  const angleTag = getOptionPrompt(selections, tagDb, "angle");
-  if (angleTag) block3Parts.push(angleTag);
+  // Angle (multi-select, weighted) — 角度
+  block3Parts.push(...selections.angle.map(formatWeightedTag));
 
   // Face visibility additional tags (facing away, eyeless, face out of frame, etc.)
   const faceVisTag = getOptionPrompt(selections, tagDb, "face_visibility");
@@ -243,12 +246,13 @@ function getOptionPrompt(
 export function createEmptySelections(): Selections {
   return {
     // Single-select
-    eye_state: null,
-    gaze: null,
-    angle: null,
     face_visibility: null,
     background: null,
     time_of_day: null,
+    // Multi-select (formerly single)
+    gaze: [],
+    eye_state: [],
+    angle: [],
     // Multi-select
     expression: [],
     mouth: [],

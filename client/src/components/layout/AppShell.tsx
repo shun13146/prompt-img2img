@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Paintbrush, Users, ListTodo, Settings } from "lucide-react";
+import { Paintbrush, Users, ListTodo, Settings, Mountain } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/", icon: Paintbrush, label: "プロンプト組立" },
   { to: "/characters", icon: Users, label: "キャラクター" },
+  { to: "/background", icon: Mountain, label: "背景生成" },
   { to: "/queue", icon: ListTodo, label: "キュー" },
   { to: "/settings", icon: Settings, label: "設定" },
 ];

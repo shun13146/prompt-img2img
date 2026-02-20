@@ -14,5 +14,8 @@
     "denoising_strength": 0.55,
     "n_iter": 8
   },
-  "mode_a_carry_over": true
+  "mode_a_carry_over": true,
+  "save_destination_folder": "",
+  "background_quality_prompt": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,",
+  "background_output_folder": ""
 }

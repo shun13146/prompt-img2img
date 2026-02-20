@@ -45,7 +45,7 @@ export interface GenerationSettings {
 // Tag Types (tags.json)
 // ============================================
 
-/** Single-select option (eye_state, gaze, angle, etc.) */
+/** Single-select option (face_visibility, background, etc.) */
 export interface TagOption {
   id: string;
   label: string;
@@ -61,6 +61,7 @@ export interface TagEntry {
   label: string;
   prompt: string;
   favorite: boolean;
+  rules?: string[];
 }
 
 export interface TagSubcategory {
@@ -94,12 +95,13 @@ export interface TagSelection {
 
 export interface Selections {
   // Single-select categories
-  eye_state: string | null;
-  gaze: string | null;
-  angle: string | null;
   face_visibility: string | null;
   background: string | null;
   time_of_day: string | null;
+  // Multi-select categories (formerly single)
+  gaze: TagSelection[];
+  eye_state: TagSelection[];
+  angle: TagSelection[];
   // Multi-select categories
   expression: TagSelection[];
   mouth: TagSelection[];
@@ -154,6 +156,7 @@ export type QueueItemStatus = "pending" | "running" | "done" | "failed";
 
 export interface QueueItem {
   id: string;
+  type?: "character" | "background";
   source_image_path: string;
   character_id: string;
   outfit_id: string;
@@ -197,6 +200,9 @@ export interface AppSettings {
   output_folder: string;
   default_settings: GenerationSettings;
   mode_a_carry_over: boolean;
+  save_destination_folder?: string;
+  background_quality_prompt?: string;
+  background_output_folder?: string;
 }
 
 // ============================================

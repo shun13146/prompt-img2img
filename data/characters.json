@@ -283,6 +283,20 @@
             "features": "man,guy,male,solo,teenager,male_typeC,black-framed eyewear,round eyewear,",
             "clothing": "navy hoodie,black pants,,"
           }
+        },
+        {
+          "id": "cr417j9j",
+          "name": "制服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:otakukun_v1:1>,otakukun,",
+            "hair": "black hair,short hair,short bang,otaku,",
+            "eyes": "black eyes,<lora:sdxl-eye-iris-width:1> , <lora:sdxl-eye-hanme_01:1>,tareme,",
+            "features": "man,guy,male,solo,teenager,male_typeC,black-framed eyewear,round eyewear,",
+            "clothing": "school uniform, <lora:Classic_gakuran:1> ,school uniform,gakuran,"
+          }
         }
       ],
       "settings": {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TagChip } from "./TagChip";
@@ -11,23 +11,30 @@ import type { TagCategory, TagSelection, TagEntry } from "@sd-prompt/shared";
 
 interface TagPickerProps {
   disabledCategories: Set<string>;
+  suppressedCategories: Set<string>;
 }
 
 type TabMode = "favorites" | "all" | "search";
 
-export function TagPicker({ disabledCategories }: TagPickerProps) {
+export function TagPicker({ disabledCategories, suppressedCategories }: TagPickerProps) {
   const tagDb = useTagStore((s) => s.tagDb);
   const toggleFavorite = useTagStore((s) => s.toggleFavorite);
-  const { selections, setSingleSelect, addTag, removeTag, setTagWeight } = usePromptStore();
+  const selections = usePromptStore((s) => s.selections);
+  const setSingleSelect = usePromptStore((s) => s.setSingleSelect);
+  const addTag = usePromptStore((s) => s.addTag);
+  const removeTag = usePromptStore((s) => s.removeTag);
+  const setTagWeight = usePromptStore((s) => s.setTagWeight);
+  const poseFreeText = usePromptStore((s) => s.poseFreeText);
+  const setPoseFreeText = usePromptStore((s) => s.setPoseFreeText);
   const [tab, setTab] = useState<TabMode>("favorites");
   const [expandedSecondary, setExpandedSecondary] = useState<Set<string>>(new Set());
 
-  const primaryCategories = tagDb.categories.filter((c) => c.zone === "primary");
-  const eyeDetailCategory = tagDb.categories.find((c) => c.id === "eye_detail");
-  const secondaryCategories = tagDb.categories.filter(
+  const primaryCategories = useMemo(() => tagDb.categories.filter((c) => c.zone === "primary"), [tagDb]);
+  const eyeDetailCategory = useMemo(() => tagDb.categories.find((c) => c.id === "eye_detail"), [tagDb]);
+  const secondaryCategories = useMemo(() => tagDb.categories.filter(
     (c) => c.zone === "secondary" && !c.id.startsWith("pose_") && c.id !== "eye_detail"
-  );
-  const poseCategories = tagDb.categories.filter((c) => c.id.startsWith("pose_"));
+  ), [tagDb]);
+  const poseCategories = useMemo(() => tagDb.categories.filter((c) => c.id.startsWith("pose_")), [tagDb]);
 
   const toggleExpand = (id: string) => {
     const next = new Set(expandedSecondary);
@@ -156,27 +163,31 @@ export function TagPicker({ disabledCategories }: TagPickerProps) {
           {cat.id === "background" && <PropsInput />}
           <CategoryPanel
             category={cat}
+            categoryId={cat.id}
             disabled={disabledCategories.has(cat.id)}
-            selections={selections}
+            suppressed={suppressedCategories.has(cat.id)}
+            selectedValue={selections[cat.id]}
             showOnlyFavorites={tab === "favorites"}
-            onSingleSelect={(optId) => setSingleSelect(cat.id, optId)}
-            onAddTag={(sel) => addTag(cat.id, sel)}
-            onRemoveTag={(tagId) => removeTag(cat.id, tagId)}
-            onSetWeight={(tagId, w) => setTagWeight(cat.id, tagId, w)}
-            onToggleFavorite={(tagId, fav) => toggleFavorite(cat.id, tagId, fav)}
+            setSingleSelect={setSingleSelect}
+            addTag={addTag}
+            removeTag={removeTag}
+            setTagWeight={setTagWeight}
+            toggleFavorite={toggleFavorite}
           />
           {/* eye_detail (目元) directly after eye_state (目の状態) */}
           {cat.id === "eye_state" && eyeDetailCategory && (
             <CategoryPanel
               category={eyeDetailCategory}
+              categoryId="eye_detail"
               disabled={disabledCategories.has("eye_detail")}
-              selections={selections}
+              suppressed={suppressedCategories.has("eye_detail")}
+              selectedValue={selections["eye_detail"]}
               showOnlyFavorites={tab === "favorites"}
-              onSingleSelect={() => {}}
-              onAddTag={(sel) => addTag("eye_detail", sel)}
-              onRemoveTag={(tagId) => removeTag("eye_detail", tagId)}
-              onSetWeight={(tagId, w) => setTagWeight("eye_detail", tagId, w)}
-              onToggleFavorite={(tagId, fav) => toggleFavorite("eye_detail", tagId, fav)}
+              setSingleSelect={setSingleSelect}
+              addTag={addTag}
+              removeTag={removeTag}
+              setTagWeight={setTagWeight}
+              toggleFavorite={toggleFavorite}
               compact
             />
           )}
@@ -257,6 +268,17 @@ export function TagPicker({ disabledCategories }: TagPickerProps) {
             </div>
           )}
 
+          {/* Pose free text input */}
+          <div className="mt-2">
+            <input
+              type="text"
+              value={poseFreeText}
+              onChange={(e) => setPoseFreeText(e.target.value)}
+              placeholder="ポーズ自由入力（例: dynamic pose）"
+              className="w-full px-2 py-1 text-xs border rounded-md bg-background"
+            />
+          </div>
+
           {/* Weight sliders for selected pose tags */}
           {selectedPoseTags.length > 0 && (
             <div className="border-t pt-1 mt-1">
@@ -317,14 +339,16 @@ export function TagPicker({ disabledCategories }: TagPickerProps) {
                   <div className="ml-4 mt-1">
                     <CategoryPanel
                       category={cat}
+                      categoryId={cat.id}
                       disabled={disabledCategories.has(cat.id)}
-                      selections={selections}
+                      suppressed={suppressedCategories.has(cat.id)}
+                      selectedValue={selections[cat.id]}
                       showOnlyFavorites={tab === "favorites"}
-                      onSingleSelect={(optId) => setSingleSelect(cat.id, optId)}
-                      onAddTag={(sel) => addTag(cat.id, sel)}
-                      onRemoveTag={(tagId) => removeTag(cat.id, tagId)}
-                      onSetWeight={(tagId, w) => setTagWeight(cat.id, tagId, w)}
-                      onToggleFavorite={(tagId, fav) => toggleFavorite(cat.id, tagId, fav)}
+                      setSingleSelect={setSingleSelect}
+                      addTag={addTag}
+                      removeTag={removeTag}
+                      setTagWeight={setTagWeight}
+                      toggleFavorite={toggleFavorite}
                       compact
                     />
                   </div>
@@ -344,27 +368,31 @@ export function TagPicker({ disabledCategories }: TagPickerProps) {
 
 interface CategoryPanelProps {
   category: TagCategory;
+  categoryId: string;
   disabled: boolean;
-  selections: any;
+  suppressed: boolean;
+  selectedValue: string | null | TagSelection[];
   showOnlyFavorites: boolean;
-  onSingleSelect: (optionId: string | null) => void;
-  onAddTag: (tag: TagSelection) => void;
-  onRemoveTag: (tagId: string) => void;
-  onSetWeight: (tagId: string, weight: number) => void;
-  onToggleFavorite: (tagId: string, favorite: boolean) => void;
+  setSingleSelect: (categoryId: string, optionId: string | null) => void;
+  addTag: (categoryId: string, tag: TagSelection) => void;
+  removeTag: (categoryId: string, tagId: string) => void;
+  setTagWeight: (categoryId: string, tagId: string, weight: number) => void;
+  toggleFavorite: (categoryId: string, tagId: string, favorite: boolean) => void;
   compact?: boolean;
 }
 
-function CategoryPanel({
+const CategoryPanel = memo(function CategoryPanel({
   category,
+  categoryId,
   disabled,
-  selections,
+  suppressed,
+  selectedValue,
   showOnlyFavorites,
-  onSingleSelect,
-  onAddTag,
-  onRemoveTag,
-  onSetWeight,
-  onToggleFavorite,
+  setSingleSelect,
+  addTag,
+  removeTag,
+  setTagWeight,
+  toggleFavorite,
   compact,
 }: CategoryPanelProps) {
   if (category.type === "single") {
@@ -372,31 +400,33 @@ function CategoryPanel({
       <SingleSelectPanel
         category={category}
         disabled={disabled}
-        selectedId={selections[category.id] as string | null}
-        onSelect={onSingleSelect}
+        suppressed={suppressed}
+        selectedId={selectedValue as string | null}
+        onSelect={(optId) => setSingleSelect(categoryId, optId)}
       />
     );
   }
 
   // Multi-select
-  const selectedTags: TagSelection[] = Array.isArray(selections[category.id])
-    ? (selections[category.id] as TagSelection[])
+  const selectedTags: TagSelection[] = Array.isArray(selectedValue)
+    ? selectedValue
     : [];
 
   return (
     <MultiSelectPanel
       category={category}
       disabled={disabled}
+      suppressed={suppressed}
       selectedTags={selectedTags}
       showOnlyFavorites={showOnlyFavorites}
-      onAddTag={onAddTag}
-      onRemoveTag={onRemoveTag}
-      onSetWeight={onSetWeight}
-      onToggleFavorite={onToggleFavorite}
+      onAddTag={(sel) => addTag(categoryId, sel)}
+      onRemoveTag={(tagId) => removeTag(categoryId, tagId)}
+      onSetWeight={(tagId, w) => setTagWeight(categoryId, tagId, w)}
+      onToggleFavorite={(tagId, fav) => toggleFavorite(categoryId, tagId, fav)}
       compact={compact}
     />
   );
-}
+});
 
 // ============================================
 // SingleSelectPanel
@@ -405,20 +435,26 @@ function CategoryPanel({
 function SingleSelectPanel({
   category,
   disabled,
+  suppressed,
   selectedId,
   onSelect,
 }: {
   category: TagCategory;
   disabled: boolean;
+  suppressed: boolean;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
 }) {
   if (!category.options) return null;
 
   return (
-    <div className={cn(disabled && "opacity-40 pointer-events-none")}>
+    <div className={cn(
+      disabled && "opacity-40 pointer-events-none",
+      suppressed && !disabled && "bg-amber-500/10 rounded-md p-1.5 border border-amber-500/30"
+    )}>
       <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {category.label}
+        {suppressed && !disabled && <span className="ml-1 text-amber-600 text-[10px]">(非適用)</span>}
       </label>
       <div className="flex flex-wrap gap-1">
         {category.options.map((opt) => (
@@ -442,6 +478,7 @@ function SingleSelectPanel({
 function MultiSelectPanel({
   category,
   disabled,
+  suppressed,
   selectedTags,
   showOnlyFavorites,
   onAddTag,
@@ -452,6 +489,7 @@ function MultiSelectPanel({
 }: {
   category: TagCategory;
   disabled: boolean;
+  suppressed: boolean;
   selectedTags: TagSelection[];
   showOnlyFavorites: boolean;
   onAddTag: (tag: TagSelection) => void;
@@ -485,10 +523,14 @@ function MultiSelectPanel({
   const groupedBySub = !showOnlyFavorites && category.subcategories.length > 1;
 
   return (
-    <div className={cn(disabled && "opacity-40 pointer-events-none")}>
+    <div className={cn(
+      disabled && "opacity-40 pointer-events-none",
+      suppressed && !disabled && "bg-amber-500/10 rounded-md p-1.5 border border-amber-500/30"
+    )}>
       {!compact && (
         <label className="text-xs font-medium text-muted-foreground mb-1 block">
           {category.label}
+          {suppressed && !disabled && <span className="ml-1 text-amber-600 text-[10px]">(非適用)</span>}
         </label>
       )}
 
@@ -545,8 +587,8 @@ function MultiSelectPanel({
         </div>
       )}
 
-      {/* Weight sliders for selected tags */}
-      {selectedTags.length > 0 && (
+      {/* Weight sliders for selected tags (hide if suppressed) */}
+      {selectedTags.length > 0 && !suppressed && (
         <div className="border-t pt-1 mt-1">
           {selectedTags.map((sel) => {
             const tagEntry = category.subcategories!

@@ -35,7 +35,7 @@ export function PromptPreview({ prompt }: PromptPreviewProps) {
 
 /** Category-based selection summary */
 function SelectionSummary() {
-  const { selections } = usePromptStore();
+  const selections = usePromptStore((s) => s.selections);
   const tagDb = useTagStore((s) => s.tagDb);
 
   const entries = useMemo(() => {

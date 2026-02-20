@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { readdir, stat } from "fs/promises";
-import { resolve, extname, basename, isAbsolute, normalize } from "path";
+import { readdir, stat, mkdir, copyFile } from "fs/promises";
+import { resolve, extname, basename, dirname, isAbsolute, normalize } from "path";
 
 const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg", ".webp", ".bmp"]);
 
@@ -81,6 +81,43 @@ export function createImageRoutes() {
         res.status(404).json({ error: "File not found" });
       }
     });
+  });
+
+  // POST /api/images/save
+  // Copy a generated image to a destination folder with a given filename
+  router.post("/save", async (req, res) => {
+    const { sourcePath, destinationFolder, filename } = req.body as {
+      sourcePath?: string;
+      destinationFolder?: string;
+      filename?: string;
+    };
+
+    if (!sourcePath || !isValidPath(sourcePath)) {
+      res.status(400).json({ error: "Invalid source path" });
+      return;
+    }
+
+    // Derive destination folder: use provided, or replace "original" with "AI済み"
+    let destFolder = destinationFolder;
+    if (!destFolder) {
+      const sourceDir = dirname(sourcePath);
+      destFolder = sourceDir.replace(/original/gi, "AI済み");
+    }
+
+    if (!isValidPath(destFolder)) {
+      res.status(400).json({ error: "Invalid destination path" });
+      return;
+    }
+
+    try {
+      await mkdir(destFolder, { recursive: true });
+      const destFilename = filename || basename(sourcePath);
+      const destPath = resolve(destFolder, destFilename);
+      await copyFile(sourcePath, destPath);
+      res.json({ saved_path: destPath });
+    } catch (err: any) {
+      res.status(500).json({ error: `Save failed: ${err.message}` });
+    }
   });
 
   return router;

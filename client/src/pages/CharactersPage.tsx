@@ -33,6 +33,7 @@ function createEmptyCharacter(): Character {
       width: 512,
       height: 768,
       denoising_strength: 0.55,
+      n_iter: 8,
     },
     memo: "",
   };

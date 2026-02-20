@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import {
   Trash2,
   Copy,
@@ -19,6 +19,14 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  Search,
+  Replace,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Download,
+  FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
@@ -28,7 +36,58 @@ import { cn } from "@/lib/utils";
 import type { QueueItem, QueueStatusInfo, QueueEvent, QueueRunnerStatus } from "@sd-prompt/shared";
 
 type TabType = "pending" | "history";
-type SortMode = "generated_desc" | "created_asc" | "created_desc";
+type SortMode = "generated_desc" | "generated_asc" | "created_asc" | "created_desc";
+type SortGroup = "generated" | "created";
+
+/**
+ * SD-style Ctrl+Up/Down weight adjustment.
+ * Finds the (tag:weight) or plain tag at cursor position and adjusts weight by ±0.1.
+ */
+function adjustWeightAtCursor(text: string, selectionStart: number, delta: number): { text: string; cursorPos: number } {
+  // Find the word/token at cursor
+  // Look for (tag:weight) pattern around cursor
+  const beforeCursor = text.substring(0, selectionStart);
+  const afterCursor = text.substring(selectionStart);
+
+  // Check if we're inside a (tag:weight) construct
+  const parenOpenBefore = beforeCursor.lastIndexOf("(");
+  const parenCloseBefore = beforeCursor.lastIndexOf(")");
+
+  if (parenOpenBefore > parenCloseBefore) {
+    // We're inside parentheses - find the closing paren
+    const parenCloseAfter = afterCursor.indexOf(")");
+    if (parenCloseAfter !== -1) {
+      const fullToken = text.substring(parenOpenBefore, selectionStart + parenCloseAfter + 1);
+      const match = fullToken.match(/^\((.+):([0-9.]+)\)$/);
+      if (match) {
+        const tag = match[1];
+        const currentWeight = parseFloat(match[2]);
+        const newWeight = Math.max(0, Math.round((currentWeight + delta) * 100) / 100);
+        const replacement = `(${tag}:${newWeight.toFixed(1)})`;
+        const newText = text.substring(0, parenOpenBefore) + replacement + text.substring(selectionStart + parenCloseAfter + 1);
+        return { text: newText, cursorPos: parenOpenBefore + replacement.length };
+      }
+    }
+  }
+
+  // Not inside (tag:weight) — find the nearest comma-separated token
+  const lastComma = beforeCursor.lastIndexOf(",");
+  const nextComma = afterCursor.indexOf(",");
+  const tokenStart = lastComma === -1 ? 0 : lastComma + 1;
+  const tokenEnd = nextComma === -1 ? text.length : selectionStart + nextComma;
+  const token = text.substring(tokenStart, tokenEnd).trim();
+
+  if (!token) return { text, cursorPos: selectionStart };
+
+  // Wrap in (tag:weight) format
+  const newWeight = Math.max(0, Math.round((1.0 + delta) * 100) / 100);
+  const replacement = `(${token}:${newWeight.toFixed(1)})`;
+  const prefix = text.substring(0, tokenStart);
+  const suffix = text.substring(tokenEnd);
+  const spaceBefore = text[tokenStart] === " " ? " " : "";
+  const newText = prefix + spaceBefore + replacement + suffix;
+  return { text: newText, cursorPos: (prefix + spaceBefore + replacement).length };
+}
 
 export function QueuePage() {
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -40,7 +99,49 @@ export function QueuePage() {
   const [tab, setTab] = useState<TabType>("pending");
   const [historySort, setHistorySort] = useState<SortMode>("generated_desc");
   const characters = useCharacterStore((s) => s.characters);
+  const characterMap = useMemo(() => {
+    const map = new Map<string, { name: string; outfits: Map<string, string> }>();
+    for (const c of characters) {
+      const outfitMap = new Map<string, string>();
+      for (const o of c.outfits) outfitMap.set(o.id, o.name);
+      map.set(c.id, { name: c.name, outfits: outfitMap });
+    }
+    return map;
+  }, [characters]);
   const eventSourceRef = useRef<EventSource | null>(null);
+
+  // Scroll position persistence
+  const scrollPositionRef = useRef<Record<TabType, number>>({ pending: 0, history: 0 });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleTabChange = useCallback((newTab: TabType) => {
+    if (scrollContainerRef.current) {
+      scrollPositionRef.current[tab] = scrollContainerRef.current.scrollTop;
+    }
+    setTab(newTab);
+  }, [tab]);
+
+  // Restore scroll position on tab change
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      requestAnimationFrame(() => {
+        container.scrollTop = scrollPositionRef.current[tab];
+      });
+    }
+  }, [tab]);
+
+  // Page-level lightbox state
+  const [lightboxState, setLightboxState] = useState<{
+    taskIndex: number;
+    imageIndex: number;
+  } | null>(null);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [replaceFrom, setReplaceFrom] = useState("");
+  const [replaceTo, setReplaceTo] = useState("");
+  const [showReplace, setShowReplace] = useState(false);
 
   const fetchQueue = useCallback(async () => {
     try {
@@ -133,8 +234,8 @@ export function QueuePage() {
     setQueue((q) => q.filter((item) => item.id !== id));
   };
 
-  const handleUpdate = async (id: string, newPrompt: string) => {
-    const updated = await api.updateQueueItem(id, { final_prompt: newPrompt });
+  const handleUpdate = async (id: string, updates: Partial<QueueItem>) => {
+    const updated = await api.updateQueueItem(id, updates);
     setQueue((q) => q.map((item) => (item.id === id ? updated : item)));
   };
 
@@ -174,13 +275,20 @@ export function QueuePage() {
     setQueue(newQueue);
   };
 
-  const pendingItems = queue.filter((q) => q.status === "pending" || q.status === "running");
-  const historyItems = (() => {
+  const pendingItems = useMemo(() =>
+    queue.filter((q) => q.status === "pending" || q.status === "running"),
+    [queue]
+  );
+
+  const historyItems = useMemo(() => {
     const items = queue.filter((q) => q.status === "done" || q.status === "failed");
     const sorted = [...items];
     switch (historySort) {
       case "generated_desc":
         sorted.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+        break;
+      case "generated_asc":
+        sorted.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime());
         break;
       case "created_asc":
         sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
@@ -190,7 +298,48 @@ export function QueuePage() {
         break;
     }
     return sorted;
-  })();
+  }, [queue, historySort]);
+
+  const displayItems = useMemo(() => {
+    const items = tab === "pending" ? pendingItems : historyItems;
+    if (!searchQuery.trim()) return items;
+    const q = searchQuery.toLowerCase();
+    return items.filter((item) => item.final_prompt.toLowerCase().includes(q));
+  }, [tab, pendingItems, historyItems, searchQuery]);
+
+  // Done tasks with results (for page-level lightbox navigation)
+  const doneTasks = useMemo(() =>
+    historyItems.filter((i) => i.status === "done" && i.result_images.length > 0),
+    [historyItems]
+  );
+
+  const handleOpenLightbox = useCallback((itemId: string, imageIdx: number) => {
+    const taskIdx = doneTasks.findIndex((t) => t.id === itemId);
+    if (taskIdx >= 0) {
+      setLightboxState({ taskIndex: taskIdx, imageIndex: imageIdx });
+    }
+  }, [doneTasks]);
+
+  // Bulk delete search results
+  const handleDeleteSearchResults = async () => {
+    for (const item of displayItems) {
+      await api.deleteQueueItem(item.id);
+    }
+    setQueue((q) => q.filter((item) => !displayItems.some((i) => i.id === item.id)));
+  };
+
+  // Bulk replace
+  const handleBulkReplace = async () => {
+    if (!replaceFrom.trim()) return;
+    const items = displayItems.filter((item) => item.status === "pending");
+    for (const item of items) {
+      const newPrompt = item.final_prompt.replaceAll(replaceFrom, replaceTo);
+      if (newPrompt !== item.final_prompt) {
+        await handleUpdate(item.id, { final_prompt: newPrompt });
+      }
+    }
+    fetchQueue();
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -248,7 +397,7 @@ export function QueuePage() {
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted"
             )}
-            onClick={() => setTab("pending")}
+            onClick={() => handleTabChange("pending")}
           >
             待機中 ({pendingItems.length})
           </button>
@@ -260,7 +409,7 @@ export function QueuePage() {
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted"
             )}
-            onClick={() => setTab("history")}
+            onClick={() => handleTabChange("history")}
           >
             履歴 ({historyItems.length})
           </button>
@@ -282,27 +431,33 @@ export function QueuePage() {
           {tab === "history" && historyItems.length > 1 && (
             <div className="flex items-center gap-0.5">
               <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
-              {(
-                [
-                  ["generated_desc", "生成順"],
-                  ["created_desc", "登録順(新)"],
-                  ["created_asc", "登録順(古)"],
-                ] as [SortMode, string][]
-              ).map(([mode, label]) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setHistorySort(mode)}
-                  className={cn(
-                    "px-1.5 py-0.5 text-[10px] rounded border transition-colors",
-                    historySort === mode
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground border-border hover:bg-muted"
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
+              {(["generated", "created"] as SortGroup[]).map((group) => {
+                const currentGroup: SortGroup = historySort.startsWith("generated") ? "generated" : "created";
+                const currentDir = historySort.endsWith("_desc") ? "desc" : "asc";
+                const isActive = currentGroup === group;
+                const label = group === "generated" ? "生成順" : "登録順";
+                return (
+                  <button
+                    key={group}
+                    type="button"
+                    onClick={() => {
+                      if (isActive) {
+                        setHistorySort(`${group}_${currentDir === "desc" ? "asc" : "desc"}` as SortMode);
+                      } else {
+                        setHistorySort(`${group}_desc` as SortMode);
+                      }
+                    }}
+                    className={cn(
+                      "px-1.5 py-0.5 text-[10px] rounded border transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-muted-foreground border-border hover:bg-muted"
+                    )}
+                  >
+                    {label}{isActive ? (currentDir === "desc" ? " ↓" : " ↑") : ""}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -317,53 +472,132 @@ export function QueuePage() {
             </Button>
           )}
         </div>
+
+        {/* Search bar */}
+        <div className="flex items-center gap-1">
+          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="プロンプト検索..."
+            className="flex-1 px-2 py-1 text-xs border rounded-md bg-background"
+          />
+          {searchQuery && (
+            <>
+              <span className="text-[10px] text-muted-foreground shrink-0">
+                {displayItems.length}件
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1"
+                onClick={() => setShowReplace(!showReplace)}
+                title="置換"
+              >
+                <Replace className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1 text-destructive hover:text-destructive"
+                onClick={handleDeleteSearchResults}
+                title="検索結果を全削除"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1"
+                onClick={() => { setSearchQuery(""); setShowReplace(false); }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* Replace bar */}
+        {showReplace && searchQuery && (
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground shrink-0">検索:</span>
+            <input
+              type="text"
+              value={replaceFrom}
+              onChange={(e) => setReplaceFrom(e.target.value)}
+              placeholder="置換前の文字"
+              className="flex-1 px-2 py-1 text-xs border rounded-md bg-background"
+            />
+            <span className="text-[10px] text-muted-foreground shrink-0">→</span>
+            <input
+              type="text"
+              value={replaceTo}
+              onChange={(e) => setReplaceTo(e.target.value)}
+              placeholder="置換後の文字"
+              className="flex-1 px-2 py-1 text-xs border rounded-md bg-background"
+            />
+            <Button size="sm" className="h-6 text-[10px]" onClick={handleBulkReplace}>
+              一括置換
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Queue list */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3">
         {loading && (
           <p className="text-sm text-muted-foreground">読み込み中...</p>
         )}
 
-        {!loading && tab === "pending" && pendingItems.length === 0 && (
+        {!loading && tab === "pending" && displayItems.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">
-            待機中のタスクがありません。ビルダーページから追加してください。
+            {searchQuery ? "検索結果がありません。" : "待機中のタスクがありません。ビルダーページから追加してください。"}
           </p>
         )}
 
-        {!loading && tab === "history" && historyItems.length === 0 && (
+        {!loading && tab === "history" && displayItems.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">
-            実行履歴がありません。
+            {searchQuery ? "検索結果がありません。" : "実行履歴がありません。"}
           </p>
         )}
 
         <div className="space-y-2">
-          {(tab === "pending" ? pendingItems : historyItems).map((item, idx, arr) => (
+          {displayItems.map((item, idx, arr) => (
             <QueueCard
               key={item.id}
               item={item}
               characterName={
-                characters.find((c) => c.id === item.character_id)?.name ||
-                item.character_id
+                characterMap.get(item.character_id)?.name || item.character_id
               }
               outfitName={
-                characters
-                  .find((c) => c.id === item.character_id)
-                  ?.outfits.find((o) => o.id === item.outfit_id)?.name ||
-                item.outfit_id
+                characterMap.get(item.character_id)?.outfits.get(item.outfit_id) || item.outfit_id
               }
               isRunning={item.id === currentTaskId}
               progress={item.id === currentTaskId ? progress : null}
               onDelete={() => handleDelete(item.id)}
-              onUpdate={(newPrompt) => handleUpdate(item.id, newPrompt)}
+              onUpdate={(updates) => handleUpdate(item.id, updates)}
               onRunSingle={() => handleRunSingle(item.id)}
               onRequeue={() => handleRequeue(item.id)}
               onMoveUp={item.status === "pending" && idx > 0 ? () => handleMove(item.id, "up") : undefined}
               onMoveDown={item.status === "pending" && idx < arr.length - 1 ? () => handleMove(item.id, "down") : undefined}
+              onOpenLightbox={(imageIdx) => handleOpenLightbox(item.id, imageIdx)}
+              searchHighlight={searchQuery}
             />
           ))}
         </div>
       </div>
+
+      {/* Page-level lightbox */}
+      {lightboxState && doneTasks.length > 0 && (
+        <PageLightbox
+          doneTasks={doneTasks}
+          taskIndex={lightboxState.taskIndex}
+          imageIndex={lightboxState.imageIndex}
+          onNavigate={(taskIdx, imgIdx) => setLightboxState({ taskIndex: taskIdx, imageIndex: imgIdx })}
+          onClose={() => setLightboxState(null)}
+        />
+      )}
     </div>
   );
 }
@@ -403,7 +637,7 @@ function RunnerStatusBadge({ status }: { status: QueueRunnerStatus }) {
   );
 }
 
-function QueueCard({
+const QueueCard = memo(function QueueCard({
   item,
   characterName,
   outfitName,
@@ -415,6 +649,8 @@ function QueueCard({
   onRequeue,
   onMoveUp,
   onMoveDown,
+  onOpenLightbox,
+  searchHighlight,
 }: {
   item: QueueItem;
   characterName: string;
@@ -422,17 +658,22 @@ function QueueCard({
   isRunning: boolean;
   progress: { step: number; total: number } | null;
   onDelete: () => void;
-  onUpdate: (newPrompt: string) => void;
+  onUpdate: (updates: Partial<QueueItem>) => void;
   onRunSingle: () => void;
   onRequeue: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  onOpenLightbox?: (imageIdx: number) => void;
+  searchHighlight?: string;
 }) {
   const { copied, copy } = useClipboard();
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(item.final_prompt);
   const [showResult, setShowResult] = useState(item.status === "done");
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
+  const [editingDenoising, setEditingDenoising] = useState(false);
+  const [denoisingValue, setDenoisingValue] = useState(item.settings.denoising_strength);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     pending: {
@@ -460,13 +701,40 @@ function QueueCard({
   const sc = statusConfig[item.status] || statusConfig.pending;
 
   const handleSave = () => {
-    onUpdate(editText);
+    onUpdate({ final_prompt: editText });
     setEditing(false);
   };
 
   const handleCancel = () => {
     setEditText(item.final_prompt);
     setEditing(false);
+  };
+
+  const handleDenoisingSave = () => {
+    onUpdate({ settings: { ...item.settings, denoising_strength: denoisingValue } } as any);
+    setEditingDenoising(false);
+  };
+
+  // Ctrl+Up/Down weight adjustment + Enter save in editing mode
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const delta = e.key === "ArrowUp" ? 0.1 : -0.1;
+      const result = adjustWeightAtCursor(editText, textarea.selectionStart, delta);
+      setEditText(result.text);
+      // Restore cursor position after React re-render
+      requestAnimationFrame(() => {
+        textarea.selectionStart = result.cursorPos;
+        textarea.selectionEnd = result.cursorPos;
+      });
+    }
+    // Enter (without Shift) saves
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    }
   };
 
   return (
@@ -490,8 +758,12 @@ function QueueCard({
         <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">{characterName}</span>
-          <span className="text-xs text-muted-foreground">/ {outfitName}</span>
+          <span className="font-medium text-sm">
+            {item.type === "background" ? "背景生成" : characterName}
+          </span>
+          {item.type !== "background" && (
+            <span className="text-xs text-muted-foreground">/ {outfitName}</span>
+          )}
           <span
             className={cn(
               "text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5",
@@ -596,7 +868,32 @@ function QueueCard({
       <div className="flex gap-3 text-[11px] text-muted-foreground flex-wrap">
         <span>Steps: {item.settings.steps}</span>
         <span>CFG: {item.settings.cfg_scale}</span>
-        <span>Denoising: {item.settings.denoising_strength}</span>
+        {editingDenoising ? (
+          <span className="flex items-center gap-1">
+            Denoising:
+            <input
+              type="number"
+              value={denoisingValue}
+              min={0}
+              max={1}
+              step={0.05}
+              onChange={(e) => setDenoisingValue(parseFloat(e.target.value))}
+              onBlur={handleDenoisingSave}
+              onKeyDown={(e) => e.key === "Enter" && handleDenoisingSave()}
+              className="w-14 h-4 text-[10px] text-center border rounded bg-background"
+              autoFocus
+            />
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { setDenoisingValue(item.settings.denoising_strength); setEditingDenoising(true); }}
+            className="hover:text-foreground hover:underline cursor-pointer"
+            title="クリックで編集"
+          >
+            Denoising: {item.settings.denoising_strength}
+          </button>
+        )}
         <span>枚数: {item.settings.n_iter || 1}</span>
         <span>Sampler: {item.settings.sampler}</span>
       </div>
@@ -633,6 +930,7 @@ function QueueCard({
           images={item.result_images}
           selectedIdx={selectedImageIdx}
           onSelect={setSelectedImageIdx}
+          onOpenLightbox={onOpenLightbox}
         />
       )}
 
@@ -640,19 +938,33 @@ function QueueCard({
       {editing ? (
         <div className="space-y-1">
           <textarea
+            ref={textareaRef}
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={handleEditKeyDown}
+            onBlur={() => {
+              if (editText !== item.final_prompt) {
+                handleSave();
+              } else {
+                setEditing(false);
+              }
+            }}
             className="w-full text-xs font-mono border rounded p-2 bg-background resize-y min-h-[80px]"
             rows={6}
             autoFocus
           />
-          <div className="flex gap-1 justify-end">
-            <Button variant="outline" size="sm" className="h-7" onClick={handleCancel}>
-              キャンセル
-            </Button>
-            <Button size="sm" className="h-7" onClick={handleSave}>
-              <Save className="h-3.5 w-3.5 mr-1" /> 保存
-            </Button>
+          <div className="flex gap-1 justify-between">
+            <span className="text-[10px] text-muted-foreground self-center">
+              Ctrl+↑↓: ウェイト調整
+            </span>
+            <div className="flex gap-1">
+              <Button variant="outline" size="sm" className="h-7" onMouseDown={(e) => e.preventDefault()} onClick={handleCancel}>
+                キャンセル
+              </Button>
+              <Button size="sm" className="h-7" onClick={handleSave}>
+                <Save className="h-3.5 w-3.5 mr-1" /> 保存
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
@@ -664,7 +976,10 @@ function QueueCard({
             item.status === "pending" && "cursor-pointer"
           )}
         >
-          <div className="text-xs font-mono bg-muted/30 rounded p-2 break-all whitespace-pre-wrap line-clamp-3">
+          <div className={cn(
+            "text-xs font-mono bg-muted/30 rounded p-2 break-all whitespace-pre-wrap",
+            !showResult && "line-clamp-3"
+          )}>
             {item.final_prompt}
           </div>
         </button>
@@ -676,40 +991,41 @@ function QueueCard({
       </div>
     </div>
   );
-}
+}, (prev, next) => {
+  return (
+    prev.item === next.item &&
+    prev.characterName === next.characterName &&
+    prev.outfitName === next.outfitName &&
+    prev.isRunning === next.isRunning &&
+    prev.progress === next.progress &&
+    prev.searchHighlight === next.searchHighlight &&
+    !!prev.onMoveUp === !!next.onMoveUp &&
+    !!prev.onMoveDown === !!next.onMoveDown &&
+    !!prev.onOpenLightbox === !!next.onOpenLightbox
+  );
+});
 
-/** Agent-scheduler style result gallery: large preview + thumbnail strip + lightbox */
+/** Agent-scheduler style result gallery: large preview + thumbnail strip */
 function ResultGallery({
   images,
   selectedIdx,
   onSelect,
+  onOpenLightbox,
 }: {
   images: string[];
   selectedIdx: number;
   onSelect: (idx: number) => void;
+  onOpenLightbox?: (imageIdx: number) => void;
 }) {
   const safeIdx = Math.min(selectedIdx, images.length - 1);
   const selectedPath = images[safeIdx];
-  const [lightbox, setLightbox] = useState(false);
-
-  // Keyboard nav for lightbox
-  useEffect(() => {
-    if (!lightbox) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(false);
-      else if (e.key === "ArrowRight" && safeIdx < images.length - 1) onSelect(safeIdx + 1);
-      else if (e.key === "ArrowLeft" && safeIdx > 0) onSelect(safeIdx - 1);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [lightbox, safeIdx, images.length, onSelect]);
 
   return (
     <div className="space-y-2">
       {/* Main preview image - click to enlarge */}
       <div
         className="border rounded-lg overflow-hidden bg-muted/20 flex items-center justify-center cursor-pointer"
-        onClick={() => setLightbox(true)}
+        onClick={() => onOpenLightbox?.(safeIdx)}
       >
         <img
           src={api.getImageUrl(selectedPath)}
@@ -752,56 +1068,211 @@ function ResultGallery({
           ))}
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Lightbox modal */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
-          onClick={() => setLightbox(false)}
+/** Page-level lightbox with task navigation and save */
+function PageLightbox({
+  doneTasks,
+  taskIndex,
+  imageIndex,
+  onNavigate,
+  onClose,
+}: {
+  doneTasks: QueueItem[];
+  taskIndex: number;
+  imageIndex: number;
+  onNavigate: (taskIdx: number, imgIdx: number) => void;
+  onClose: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState<string | null>(null);
+  const [destPath, setDestPath] = useState("");
+
+  const safeTaskIdx = Math.min(taskIndex, doneTasks.length - 1);
+  const task = doneTasks[safeTaskIdx];
+  const images = task?.result_images ?? [];
+  const safeImgIdx = Math.min(imageIndex, Math.max(0, images.length - 1));
+  const currentPath = images[safeImgIdx];
+
+  // Initialize destPath from task source (replace "original" with "AI済み")
+  useEffect(() => {
+    if (!task) return;
+    const sourceDir = task.source_image_path.split(/[/\\]/).slice(0, -1).join("/");
+    setDestPath(sourceDir.replace(/original/gi, "AI済み"));
+  }, [task?.source_image_path]);
+
+  // Keyboard navigation (must be before any conditional return for hooks rule)
+  useEffect(() => {
+    if (!task) return;
+    const handler = (e: KeyboardEvent) => {
+      // Don't capture when input is focused
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") {
+        const nextIdx = (safeImgIdx + 1) % images.length;
+        onNavigate(safeTaskIdx, nextIdx);
+      } else if (e.key === "ArrowLeft") {
+        const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
+        onNavigate(safeTaskIdx, prevIdx);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (safeTaskIdx > 0) onNavigate(safeTaskIdx - 1, 0);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (safeTaskIdx < doneTasks.length - 1) onNavigate(safeTaskIdx + 1, 0);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [task, safeTaskIdx, safeImgIdx, images.length, onNavigate, onClose, doneTasks.length]);
+
+  if (!task || !currentPath) return null;
+
+  const handlePrevImage = () => {
+    const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
+    onNavigate(safeTaskIdx, prevIdx);
+  };
+
+  const handleNextImage = () => {
+    const nextIdx = (safeImgIdx + 1) % images.length;
+    onNavigate(safeTaskIdx, nextIdx);
+  };
+
+  const handlePrevTask = () => {
+    if (safeTaskIdx > 0) onNavigate(safeTaskIdx - 1, 0);
+  };
+
+  const handleNextTask = () => {
+    if (safeTaskIdx < doneTasks.length - 1) onNavigate(safeTaskIdx + 1, 0);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveResult(null);
+    try {
+      const sourceFilename = task.source_image_path.split(/[/\\]/).pop() || "image.png";
+      const result = await api.saveImage(currentPath, destPath, sourceFilename);
+      setSaveResult(result.saved_path);
+      setTimeout(() => setSaveResult(null), 3000);
+    } catch {
+      setSaveResult("error");
+      setTimeout(() => setSaveResult(null), 3000);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Top: prev task button */}
+      <div className="shrink-0 w-full flex justify-center py-1" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={handlePrevTask}
+          disabled={safeTaskIdx <= 0}
+          className="flex items-center gap-1 text-white/70 text-xs px-3 py-1 rounded hover:bg-white/20 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={api.getImageUrl(selectedPath)}
-              alt={`Result ${safeIdx + 1}`}
-              className="max-w-[90vw] max-h-[90vh] object-contain"
-            />
-            {/* Nav arrows */}
-            {safeIdx > 0 && (
-              <button
-                type="button"
-                aria-label="前の画像"
-                onClick={() => onSelect(safeIdx - 1)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
-              >
-                &#8249;
-              </button>
-            )}
-            {safeIdx < images.length - 1 && (
-              <button
-                type="button"
-                aria-label="次の画像"
-                onClick={() => onSelect(safeIdx + 1)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
-              >
-                &#8250;
-              </button>
-            )}
-            {/* Close button */}
-            <button
-              type="button"
-              aria-label="閉じる"
-              onClick={() => setLightbox(false)}
-              className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            {/* Counter */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1 rounded-full">
-              {safeIdx + 1} / {images.length}
-            </div>
-          </div>
+          <ChevronUp className="h-4 w-4" /> 前のタスク ({safeTaskIdx}/{doneTasks.length})
+        </button>
+      </div>
+
+      {/* Image area - click empty space to close */}
+      <div
+        className="relative flex-1 flex items-center justify-center w-full"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      >
+        <img
+          src={api.getImageUrl(currentPath)}
+          alt={`Result ${safeImgIdx + 1}`}
+          className="max-w-[90vw] max-h-[75vh] object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+        {/* Nav arrows (always shown, wrap-around) */}
+        <button
+          type="button"
+          aria-label="前の画像"
+          onClick={handlePrevImage}
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
+        >
+          &#8249;
+        </button>
+        <button
+          type="button"
+          aria-label="次の画像"
+          onClick={handleNextImage}
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70"
+        >
+          &#8250;
+        </button>
+        {/* Close button */}
+        <button
+          type="button"
+          aria-label="閉じる"
+          onClick={onClose}
+          className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Save button between image and next task */}
+      <div className="shrink-0 flex items-center gap-2 py-1" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-1 text-white text-sm px-4 py-1.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-50 transition-colors"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          {saveResult === "error" ? "エラー" : saveResult ? "保存済み" : "保存"}
+        </button>
+        <span className="text-white/50 text-xs">
+          {safeImgIdx + 1}/{images.length} 枚
+        </span>
+      </div>
+
+      {/* Bottom: next task button */}
+      <div className="shrink-0 w-full flex justify-center py-1" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={handleNextTask}
+          disabled={safeTaskIdx >= doneTasks.length - 1}
+          className="flex items-center gap-1 text-white/70 text-xs px-3 py-1 rounded hover:bg-white/20 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          次のタスク ({safeTaskIdx + 2}/{doneTasks.length}) <ChevronDown className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Bottom bar: save + editable path */}
+      <div className="shrink-0 w-full bg-black/60 px-4 py-2 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+        <span className="text-white text-xs shrink-0">
+          {safeImgIdx + 1}/{images.length} 枚
+        </span>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-1 text-white text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-50 shrink-0"
+        >
+          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          {saveResult === "error" ? "エラー" : saveResult ? "保存済み" : "保存"}
+        </button>
+        <div className="flex items-center gap-1 flex-1 min-w-0">
+          <FolderOpen className="h-3.5 w-3.5 text-white/50 shrink-0" />
+          <input
+            type="text"
+            value={destPath}
+            onChange={(e) => setDestPath(e.target.value)}
+            className="flex-1 min-w-0 text-xs text-white/80 bg-white/10 border border-white/20 rounded px-2 py-1 focus:outline-none focus:border-white/40 focus:bg-white/15"
+            title="保存先フォルダ"
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }

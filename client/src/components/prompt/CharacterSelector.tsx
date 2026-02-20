@@ -6,7 +6,10 @@ import type { Character } from "@sd-prompt/shared";
 
 export function CharacterSelector() {
   const characters = useCharacterStore((s) => s.characters);
-  const { activeCharacterId, activeOutfitId, setCharacter, setOutfit } = usePromptStore();
+  const activeCharacterId = usePromptStore((s) => s.activeCharacterId);
+  const activeOutfitId = usePromptStore((s) => s.activeOutfitId);
+  const setCharacter = usePromptStore((s) => s.setCharacter);
+  const setOutfit = usePromptStore((s) => s.setOutfit);
 
   const activeChar = characters.find((c) => c.id === activeCharacterId);
 

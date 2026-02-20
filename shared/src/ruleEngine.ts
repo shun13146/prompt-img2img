@@ -2,13 +2,16 @@ import type {
   Selections,
   TagCategory,
   TagDatabase,
+  TagSelection,
   RuleAction,
   FaceVisibilityOptions,
 } from "./types.js";
 
 /**
  * Collect all active rules from the current selections.
- * Rules are embedded in tag options (single-select categories).
+ * Rules come from:
+ * 1. Single-select category options (e.g., face_visibility)
+ * 2. Multi-select tag entries with rules (e.g., eye_state tags with remove_eyes)
  */
 export function collectActiveRules(
   selections: Selections,
@@ -18,23 +21,37 @@ export function collectActiveRules(
   const rules: string[] = [];
 
   for (const category of tagDb.categories) {
-    if (category.type !== "single" || !category.options) continue;
+    if (category.type === "single" && category.options) {
+      const selectedId = selections[category.id] as string | null;
+      if (!selectedId) continue;
 
-    const selectedId = selections[category.id] as string | null;
-    if (!selectedId) continue;
+      const option = category.options.find((o) => o.id === selectedId);
+      if (!option) continue;
 
-    const option = category.options.find((o) => o.id === selectedId);
-    if (!option) continue;
+      // Add standard rules
+      if (option.rules) {
+        rules.push(...option.rules);
+      }
 
-    // Add standard rules
-    if (option.rules) {
-      rules.push(...option.rules);
-    }
+      // Add optional rules based on checkboxes (face_visibility special case)
+      if (faceVisibilityOptions && category.id === "face_visibility") {
+        if (option.optional_rules && faceVisibilityOptions.remove_hair) {
+          rules.push(...option.optional_rules);
+        }
+      }
+    } else if (category.type === "multi" && category.subcategories) {
+      // Collect rules from selected multi-select tags that have rules
+      const selected = selections[category.id];
+      if (!Array.isArray(selected)) continue;
 
-    // Add optional rules based on checkboxes (face_visibility special case)
-    if (faceVisibilityOptions && category.id === "face_visibility") {
-      if (option.optional_rules && faceVisibilityOptions.remove_hair) {
-        rules.push(...option.optional_rules);
+      for (const sel of selected as TagSelection[]) {
+        // Find the tag entry to check for rules
+        for (const sub of category.subcategories) {
+          const tagEntry = sub.tags.find((t) => t.id === sel.tag_id);
+          if (tagEntry?.rules) {
+            rules.push(...tagEntry.rules);
+          }
+        }
       }
     }
   }
@@ -46,8 +63,44 @@ export function collectActiveRules(
  * Determine which categories should be disabled (grayed out) based on active rules.
  */
 export function getDisabledCategories(activeRules: string[]): Set<string> {
-  // No categories are disabled — eye categories always stay visible
-  return new Set<string>();
+  const disabled = new Set<string>();
+
+  if (activeRules.includes("remove_eyes")) {
+    disabled.add("eye_detail");
+    disabled.add("gaze");
+  }
+
+  return disabled;
+}
+
+/**
+ * Determine which categories are suppressed (not applied to prompt but still selectable).
+ * Used when face is hidden — expression, mouth, eye_detail, gaze, eye_state, face_parts
+ * are still clickable but shown with warning color.
+ */
+export function getSuppressedCategories(
+  selections: Selections,
+  activeRules: string[]
+): Set<string> {
+  const suppressed = new Set<string>();
+
+  // Face hidden → face-related categories are suppressed
+  if (selections.face_visibility === "hidden") {
+    suppressed.add("expression");
+    suppressed.add("mouth");
+    suppressed.add("eye_detail");
+    suppressed.add("gaze");
+    suppressed.add("eye_state");
+    suppressed.add("face_parts");
+  }
+
+  // Eyes closed → eye detail and gaze are suppressed
+  if (activeRules.includes("remove_eyes")) {
+    suppressed.add("eye_detail");
+    suppressed.add("gaze");
+  }
+
+  return suppressed;
 }
 
 /**

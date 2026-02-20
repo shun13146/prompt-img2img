@@ -16,17 +16,14 @@ import { ImageNavigator } from "@/components/prompt/ImageNavigator";
 import { api } from "@/lib/api";
 
 export function BuilderPage() {
-  const { prompt, disabledCategories } = usePromptAssembly();
-  const {
-    activeCharacterId,
-    activeOutfitId,
-    selections,
-    freeText,
-    faceVisibilityOptions,
-    imagePaths,
-    currentImageIndex,
-    reset,
-  } = usePromptStore();
+  const { prompt, disabledCategories, suppressedCategories } = usePromptAssembly();
+  const activeCharacterId = usePromptStore((s) => s.activeCharacterId);
+  const activeOutfitId = usePromptStore((s) => s.activeOutfitId);
+  const selections = usePromptStore((s) => s.selections);
+  const freeText = usePromptStore((s) => s.freeText);
+  const imagePaths = usePromptStore((s) => s.imagePaths);
+  const currentImageIndex = usePromptStore((s) => s.currentImageIndex);
+  const reset = usePromptStore((s) => s.reset);
   const characters = useCharacterStore((s) => s.characters);
   const settings = useSettingsStore((s) => s.settings);
   const { copied, copy } = useClipboard();
@@ -39,6 +36,11 @@ export function BuilderPage() {
   const [nIter, setNIter] = useState(
     settings?.default_settings.n_iter ?? 8
   );
+
+  // Reset denoising when image changes
+  useEffect(() => {
+    setDenoising(0.55);
+  }, [currentImageIndex]);
 
   const hasSourceImage = !!(imagePaths[currentImageIndex]);
   const nextImage = usePromptStore((s) => s.nextImage);
@@ -112,7 +114,7 @@ export function BuilderPage() {
               </div>
 
               <div className="border-t pt-3">
-                <TagPicker disabledCategories={disabledCategories} />
+                <TagPicker disabledCategories={disabledCategories} suppressedCategories={suppressedCategories} />
               </div>
 
               {selections.face_visibility === "hidden" && <FaceVisibilityPanel />}
@@ -149,7 +151,7 @@ export function BuilderPage() {
 
       {/* Right: Image + Preview */}
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-2xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-4">
           <ImageNavigator />
 
           {/* Copy button + Preview header */}

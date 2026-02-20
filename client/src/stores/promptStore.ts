@@ -2,12 +2,46 @@ import { create } from "zustand";
 import type { Selections, TagSelection, FaceVisibilityOptions } from "@sd-prompt/shared";
 import { createEmptySelections } from "@sd-prompt/shared";
 
+// Categories to reset when navigating to a new image (even with carry-over)
+const RESET_ON_IMAGE_CHANGE: (keyof Selections)[] = [
+  "expression",
+  "mouth",
+  "pose_head",
+  "pose_hand_head",
+  "pose_hand_body",
+  "pose_hand_torso",
+  "pose_hand_prop",
+  "pose_fingers",
+  "pose_legs",
+  "pose_static_upper",
+  "pose_standing",
+  "pose_sitting",
+  "pose_lying",
+  "pose_dynamic",
+];
+
+// Mouth open/close mutual exclusion pairs
+const MOUTH_EXCLUSION: Record<string, string> = {
+  open_mouth: "closed_mouth",
+  closed_mouth: "open_mouth",
+};
+
+function createPartialResetSelections(current: Selections): Selections {
+  const reset = createEmptySelections();
+  const result = { ...current };
+  for (const key of RESET_ON_IMAGE_CHANGE) {
+    (result as any)[key] = (reset as any)[key];
+  }
+  return result;
+}
+
 interface CharacterState {
   selections: Selections;
   freeText: string;
   propsEnabled: boolean;
   propsText: string;
   accessoriesText: string;
+  poseFreeText: string;
   faceVisibilityOptions: FaceVisibilityOptions;
 }
 
@@ -20,6 +54,7 @@ interface PromptState {
   propsEnabled: boolean;
   propsText: string;
   accessoriesText: string;
+  poseFreeText: string;
   faceVisibilityOptions: FaceVisibilityOptions;
 
   // Per-character saved state
@@ -49,6 +84,7 @@ interface PromptState {
   setPropsEnabled: (enabled: boolean) => void;
   setPropsText: (text: string) => void;
   setAccessoriesText: (text: string) => void;
+  setPoseFreeText: (text: string) => void;
 
   // Navigation
   setImagePaths: (paths: string[]) => void;
@@ -68,6 +104,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   propsEnabled: false,
   propsText: "",
   accessoriesText: "",
+  poseFreeText: "",
   faceVisibilityOptions: {
     face_out_of_frame: false,
     head_out_of_frame: false,
@@ -89,6 +126,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         propsEnabled: state.propsEnabled,
         propsText: state.propsText,
         accessoriesText: state.accessoriesText,
+        poseFreeText: state.poseFreeText,
         faceVisibilityOptions: state.faceVisibilityOptions,
       };
     }
@@ -96,6 +134,10 @@ export const usePromptStore = create<PromptState>((set, get) => ({
     // Restore saved state for new character, or use empty
     const saved = newSavedStates[charId];
     if (saved) {
+      // Migrate gaze from string to TagSelection[] if needed
+      if (saved.selections.gaze && !Array.isArray(saved.selections.gaze)) {
+        saved.selections.gaze = [];
+      }
       set({
         activeCharacterId: charId,
         activeOutfitId: outfitId,
@@ -104,6 +146,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         propsEnabled: saved.propsEnabled,
         propsText: saved.propsText,
         accessoriesText: saved.accessoriesText,
+        poseFreeText: saved.poseFreeText,
         faceVisibilityOptions: saved.faceVisibilityOptions,
         savedStates: newSavedStates,
       });
@@ -116,6 +159,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         propsEnabled: false,
         propsText: "",
         accessoriesText: "",
+        poseFreeText: "",
         faceVisibilityOptions: {
           face_out_of_frame: false,
           head_out_of_frame: false,
@@ -142,10 +186,19 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       if (!Array.isArray(current)) return state;
       // Avoid duplicates
       if (current.some((t) => t.tag_id === tag.tag_id)) return state;
+
+      let newCurrent = [...current, tag];
+
+      // Mouth open/close mutual exclusion
+      if (categoryId === "mouth" && MOUTH_EXCLUSION[tag.tag_id]) {
+        const exclude = MOUTH_EXCLUSION[tag.tag_id];
+        newCurrent = newCurrent.filter((t) => t.tag_id !== exclude);
+      }
+
       return {
         selections: {
           ...state.selections,
-          [categoryId]: [...current, tag],
+          [categoryId]: newCurrent,
         },
       };
     });
@@ -189,13 +242,14 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   setPropsEnabled: (enabled) => set({ propsEnabled: enabled }),
   setPropsText: (text) => set({ propsText: text }),
   setAccessoriesText: (text) => set({ accessoriesText: text }),
+  setPoseFreeText: (text) => set({ poseFreeText: text }),
 
   setImagePaths: (paths) => set({ imagePaths: paths, currentImageIndex: 0 }),
 
   goToImage: (index) => set({ currentImageIndex: index }),
 
   nextImage: (carryOver) => {
-    const { currentImageIndex, imagePaths } = get();
+    const { currentImageIndex, imagePaths, selections } = get();
     if (currentImageIndex >= imagePaths.length - 1) return;
     if (!carryOver) {
       set({
@@ -205,6 +259,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         propsEnabled: false,
         propsText: "",
         accessoriesText: "",
+        poseFreeText: "",
         faceVisibilityOptions: {
           face_out_of_frame: false,
           head_out_of_frame: false,
@@ -212,12 +267,17 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         },
       });
     } else {
-      set({ currentImageIndex: currentImageIndex + 1 });
+      // Carry over but reset expression, mouth, and pose categories
+      set({
+        currentImageIndex: currentImageIndex + 1,
+        selections: createPartialResetSelections(selections),
+        poseFreeText: "",
+      });
     }
   },
 
   prevImage: (carryOver) => {
-    const { currentImageIndex } = get();
+    const { currentImageIndex, selections } = get();
     if (currentImageIndex <= 0) return;
     if (!carryOver) {
       set({
@@ -227,6 +287,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         propsEnabled: false,
         propsText: "",
         accessoriesText: "",
+        poseFreeText: "",
         faceVisibilityOptions: {
           face_out_of_frame: false,
           head_out_of_frame: false,
@@ -234,7 +295,11 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         },
       });
     } else {
-      set({ currentImageIndex: currentImageIndex - 1 });
+      set({
+        currentImageIndex: currentImageIndex - 1,
+        selections: createPartialResetSelections(selections),
+        poseFreeText: "",
+      });
     }
   },
 
@@ -242,6 +307,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
     set({
       selections: createEmptySelections(),
       freeText: "",
+      poseFreeText: "",
       faceVisibilityOptions: {
         face_out_of_frame: false,
         head_out_of_frame: false,

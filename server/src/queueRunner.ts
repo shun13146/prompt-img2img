@@ -21,6 +21,24 @@ export class QueueRunner {
   ) {
     const settings = settingsStore.get();
     this.forgeApi = new ForgeApi(settings.forge_api_url);
+    this.recoverStuckTasks();
+  }
+
+  /** On startup, reset any tasks stuck in "running" back to "pending" */
+  private recoverStuckTasks() {
+    const data = this.queueStore.get();
+    let recovered = 0;
+    for (const item of data.queue) {
+      if (item.status === "running") {
+        item.status = "pending";
+        item.updated_at = new Date().toISOString();
+        recovered++;
+      }
+    }
+    if (recovered > 0) {
+      this.queueStore.save(data);
+      console.log(`[QueueRunner] Recovered ${recovered} stuck task(s) → pending`);
+    }
   }
 
   /** Get current runner status info */
@@ -116,25 +134,27 @@ export class QueueRunner {
     this.sendEvent({ type: "status", data: this.getStatusInfo() });
   }
 
-  /** Process the next pending item */
+  /** Process pending items in a loop */
   private async processNext() {
     if (this.status !== "running") return;
     if (this.processing) return; // Prevent concurrent execution
 
     this.processing = true;
     try {
-      const data = this.queueStore.get();
-      const next = data.queue.find((q) => q.status === "pending");
+      while (this.status === "running") {
+        const data = this.queueStore.get();
+        const next = data.queue.find((q) => q.status === "pending");
 
-      if (!next) {
-        // No more pending tasks
-        this.status = "idle";
-        this.currentTaskId = null;
-        this.sendEvent({ type: "status", data: this.getStatusInfo() });
-        return;
+        if (!next) {
+          // No more pending tasks
+          this.status = "idle";
+          this.currentTaskId = null;
+          this.sendEvent({ type: "status", data: this.getStatusInfo() });
+          return;
+        }
+
+        await this.executeTask(next, false);
       }
-
-      await this.executeTask(next, false);
     } finally {
       this.processing = false;
     }
@@ -201,15 +221,23 @@ export class QueueRunner {
       const sourceImage = await this.forgeApi.readImage(item.source_image_path);
 
       // Build request (use source image dimensions)
+      const isBackground = item.type === "background";
+      const taskSettings = isBackground
+        ? { ...item.settings, adetailer: undefined }
+        : item.settings;
       const request = this.forgeApi.buildRequest({
         sourceImageBase64: sourceImage.base64,
         sourceWidth: sourceImage.width,
         sourceHeight: sourceImage.height,
         prompt: item.final_prompt,
         negativePrompt: settings.negative_prompt,
-        settings: item.settings,
+        settings: taskSettings,
         checkpointModel: settings.checkpoint_model || undefined,
       });
+      // Background tasks don't use ADetailer
+      if (isBackground) {
+        delete request.alwayson_scripts;
+      }
 
       // Start progress polling
       this.startProgressPolling(item.id);
@@ -221,7 +249,9 @@ export class QueueRunner {
       this.stopProgressPolling();
 
       // Save result images
-      const outputFolder = settings.output_folder || "./outputs";
+      const outputFolder = isBackground
+        ? (settings.background_output_folder || settings.output_folder || "./outputs")
+        : (settings.output_folder || "./outputs");
       const savedPaths: string[] = [];
       for (let i = 0; i < result.images.length; i++) {
         const filename = this.forgeApi.makeOutputFilename(
@@ -267,10 +297,5 @@ export class QueueRunner {
 
     this.currentTaskId = null;
     this.sendEvent({ type: "status", data: this.getStatusInfo() });
-
-    // Process next task if still running (skip for single-run tasks)
-    if (!singleRun && this.status === "running") {
-      await this.processNext();
-    }
   }
 }

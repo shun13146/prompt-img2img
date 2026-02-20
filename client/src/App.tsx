@@ -5,6 +5,7 @@ import { BuilderPage } from "./pages/BuilderPage";
 import { CharactersPage } from "./pages/CharactersPage";
 import { QueuePage } from "./pages/QueuePage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { BackgroundPage } from "./pages/BackgroundPage";
 import { useCharacterStore } from "./stores/characterStore";
 import { useTagStore } from "./stores/tagStore";
 import { useSettingsStore } from "./stores/settingsStore";
@@ -26,6 +27,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<BuilderPage />} />
           <Route path="/characters" element={<CharactersPage />} />
+          <Route path="/background" element={<BackgroundPage />} />
           <Route path="/queue" element={<QueuePage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

@@ -2,7 +2,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePromptStore } from "@/stores/promptStore";
 
 export function FreeTextInput() {
-  const { freeText, setFreeText } = usePromptStore();
+  const freeText = usePromptStore((s) => s.freeText);
+  const setFreeText = usePromptStore((s) => s.setFreeText);
 
   return (
     <div>

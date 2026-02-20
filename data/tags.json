@@ -3,125 +3,116 @@
     {
       "id": "eye_state",
       "label": "目の状態",
-      "type": "single",
+      "type": "multi",
       "zone": "primary",
-      "options": [
+      "subcategories": [
         {
-          "id": "normal",
-          "label": "通常",
-          "prompt": ""
-        },
-        {
-          "id": "closed",
-          "label": "閉じ目",
-          "prompt": "closed eyes",
-          "rules": [
-            "remove_eyes"
+          "name": "目の状態",
+          "tags": [
+            {
+              "id": "closed",
+              "label": "閉じ目",
+              "prompt": "closed eyes",
+              "favorite": true,
+              "rules": ["remove_eyes"]
+            },
+            {
+              "id": "closed_lora",
+              "label": "笑い目閉じ(LoRA)",
+              "prompt": "lora:hotarueye_xl_closed1_v20:1, closed eyes, smile,",
+              "favorite": false,
+              "rules": ["remove_eyes"]
+            },
+            {
+              "id": "wink",
+              "label": "ウインク",
+              "prompt": "wink, one eye closed,",
+              "favorite": true
+            },
+            {
+              "id": "half_closed",
+              "label": "半目",
+              "prompt": "half-closed eyes",
+              "favorite": false
+            },
+            {
+              "id": "eyeless",
+              "label": "目なし",
+              "prompt": "eyeless",
+              "favorite": false,
+              "rules": ["remove_eyes"]
+            }
           ]
-        },
-        {
-          "id": "closed_lora",
-          "label": "笑い目閉じ(LoRA)",
-          "prompt": "lora:hotarueye_xl_closed1_v20:1, closed eyes, smile,",
-          "rules": [
-            "remove_eyes"
-          ]
-        },
-        {
-          "id": "wink",
-          "label": "ウインク",
-          "prompt": "wink, one eye closed,"
-        },
-        {
-          "id": "half_closed",
-          "label": "半目",
-          "prompt": "half-closed eyes"
         }
       ]
     },
     {
       "id": "gaze",
       "label": "視線",
-      "type": "single",
+      "type": "multi",
       "zone": "primary",
-      "options": [
+      "subcategories": [
         {
-          "id": "at_viewer",
-          "label": "カメラ目線",
-          "prompt": "looking at viewer,"
-        },
-        {
-          "id": "away",
-          "label": "他方",
-          "prompt": "looking away,"
-        },
-        {
-          "id": "down",
-          "label": "下",
-          "prompt": "looking down,"
-        },
-        {
-          "id": "up",
-          "label": "上",
-          "prompt": "looking up,"
-        },
-        {
-          "id": "sideways",
-          "label": "目を横へ",
-          "prompt": "sideways glance,"
-        },
-        {
-          "id": "averting",
-          "label": "気まずそう",
-          "prompt": "averting eyes,"
-        },
-        {
-          "id": "afar",
-          "label": "遠くを見る",
-          "prompt": "looking afar,"
-        },
-        {
-          "id": "at_another",
-          "label": "何かを見る",
-          "prompt": "looking at another"
+          "name": "視線",
+          "tags": [
+            { "id": "at_viewer", "label": "カメラ目線", "prompt": "looking at viewer,", "favorite": true },
+            { "id": "away", "label": "他方", "prompt": "looking away,", "favorite": true },
+            { "id": "down", "label": "下", "prompt": "looking down,", "favorite": true },
+            { "id": "up", "label": "上", "prompt": "looking up,", "favorite": true },
+            { "id": "sideways", "label": "目を横へ", "prompt": "sideways glance,", "favorite": false },
+            { "id": "averting", "label": "気まずそう", "prompt": "averting eyes,", "favorite": false },
+            { "id": "afar", "label": "遠くを見る", "prompt": "looking afar,", "favorite": false },
+            { "id": "at_another", "label": "何かを見る", "prompt": "looking at another", "favorite": false }
+          ]
         }
       ]
     },
     {
       "id": "angle",
       "label": "角度",
-      "type": "single",
+      "type": "multi",
       "zone": "primary",
-      "options": [
+      "subcategories": [
         {
-          "id": "front",
-          "label": "正面",
-          "prompt": "from front"
-        },
-        {
-          "id": "side",
-          "label": "横",
-          "prompt": "from side"
-        },
-        {
-          "id": "behind",
-          "label": "後ろ",
-          "prompt": "from behind"
-        },
-        {
-          "id": "above",
-          "label": "上",
-          "prompt": "from above"
-        },
-        {
-          "id": "below",
-          "label": "下",
-          "prompt": "from below"
-        },
-        {
-          "id": "dutch",
-          "label": "斜め",
-          "prompt": "dutch angle"
+          "name": "角度",
+          "tags": [
+            {
+              "id": "front",
+              "label": "正面",
+              "prompt": "from front",
+              "favorite": true
+            },
+            {
+              "id": "side",
+              "label": "横",
+              "prompt": "from side",
+              "favorite": true
+            },
+            {
+              "id": "behind",
+              "label": "後ろ",
+              "prompt": "from behind",
+              "favorite": true
+            },
+            {
+              "id": "above",
+              "label": "上",
+              "prompt": "from above",
+              "favorite": true
+            },
+            {
+              "id": "below",
+              "label": "下",
+              "prompt": "from below",
+              "favorite": true
+            },
+            {
+              "id": "dutch",
+              "label": "斜め",
+              "prompt": "dutch angle",
+              "favorite": true
+            }
+          ]
         }
       ]
     },
@@ -296,6 +287,12 @@
               "label": "疲れた（目の下隈）",
               "prompt": "tired,",
               "favorite": false
+            },
+            {
+              "id": "tearful",
+              "label": "涙ぐむ",
+              "prompt": "tearful,",
+              "favorite": true
             },
             {
               "id": "tears",
@@ -566,7 +563,7 @@
               "id": "uneven_eyes",
               "label": "片目半分閉じ",
               "prompt": "uneven eyes",
-              "favorite": false
+              "favorite": true
             }
           ]
         }
@@ -621,7 +618,7 @@
               "id": "chestnut_mouth",
               "label": "栗みたいな口",
               "prompt": "chestnut mouth",
-              "favorite": false
+              "favorite": true
             },
             {
               "id": "teeth",

@@ -1,7 +1,8 @@
 import { usePromptStore } from "@/stores/promptStore";
 
 export function FaceVisibilityPanel() {
-  const { faceVisibilityOptions, setFaceVisibilityOption } = usePromptStore();
+  const faceVisibilityOptions = usePromptStore((s) => s.faceVisibilityOptions);
+  const setFaceVisibilityOption = usePromptStore((s) => s.setFaceVisibilityOption);
 
   return (
     <div className="border rounded-md p-3 bg-muted/30 space-y-2">

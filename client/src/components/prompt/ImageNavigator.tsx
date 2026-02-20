@@ -7,14 +7,12 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export function ImageNavigator() {
-  const {
-    imagePaths,
-    currentImageIndex,
-    setImagePaths,
-    goToImage,
-    nextImage,
-    prevImage,
-  } = usePromptStore();
+  const imagePaths = usePromptStore((s) => s.imagePaths);
+  const currentImageIndex = usePromptStore((s) => s.currentImageIndex);
+  const setImagePaths = usePromptStore((s) => s.setImagePaths);
+  const goToImage = usePromptStore((s) => s.goToImage);
+  const nextImage = usePromptStore((s) => s.nextImage);
+  const prevImage = usePromptStore((s) => s.prevImage);
 
   const [folder, setFolder] = useState("");
   const [loading, setLoading] = useState(false);
@@ -118,7 +116,7 @@ export function ImageNavigator() {
             <img
               src={api.getImageUrl(currentPath)}
               alt={`Image ${currentImageIndex + 1}`}
-              className="w-full max-h-[250px] object-contain"
+              className="w-full max-h-[500px] object-contain"
             />
           </div>
 

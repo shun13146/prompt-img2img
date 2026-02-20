@@ -135,11 +135,12 @@ export class ForgeApi {
       batch_size: 1,
     };
 
-    // Override checkpoint model if specified
+    // Override settings (checkpoint model, CLIP skip, etc.)
+    req.override_settings = {
+      CLIP_stop_at_last_layers: 2,
+    };
     if (params.checkpointModel) {
-      req.override_settings = {
-        sd_model_checkpoint: params.checkpointModel,
-      };
+      req.override_settings.sd_model_checkpoint = params.checkpointModel;
     }
 
     // ADetailer if configured
