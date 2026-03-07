@@ -131,9 +131,9 @@ export function QueuePage() {
     }
   }, [tab]);
 
-  // Page-level lightbox state
+  // Page-level lightbox state (uses task ID to survive doneTasks reordering)
   const [lightboxState, setLightboxState] = useState<{
-    taskIndex: number;
+    taskId: string;
     imageIndex: number;
   } | null>(null);
 
@@ -314,11 +314,8 @@ export function QueuePage() {
   );
 
   const handleOpenLightbox = useCallback((itemId: string, imageIdx: number) => {
-    const taskIdx = doneTasks.findIndex((t) => t.id === itemId);
-    if (taskIdx >= 0) {
-      setLightboxState({ taskIndex: taskIdx, imageIndex: imageIdx });
-    }
-  }, [doneTasks]);
+    setLightboxState({ taskId: itemId, imageIndex: imageIdx });
+  }, []);
 
   // Bulk delete search results
   const handleDeleteSearchResults = async () => {
@@ -592,9 +589,10 @@ export function QueuePage() {
       {lightboxState && doneTasks.length > 0 && (
         <PageLightbox
           doneTasks={doneTasks}
-          taskIndex={lightboxState.taskIndex}
+          taskId={lightboxState.taskId}
           imageIndex={lightboxState.imageIndex}
-          onNavigate={(taskIdx, imgIdx) => setLightboxState({ taskIndex: taskIdx, imageIndex: imgIdx })}
+          characterMap={characterMap}
+          onNavigate={(taskId, imgIdx) => setLightboxState({ taskId, imageIndex: imgIdx })}
           onClose={() => setLightboxState(null)}
         />
       )}
@@ -1075,26 +1073,38 @@ function ResultGallery({
 /** Page-level lightbox with task navigation and save */
 function PageLightbox({
   doneTasks,
-  taskIndex,
+  taskId,
   imageIndex,
+  characterMap,
   onNavigate,
   onClose,
 }: {
   doneTasks: QueueItem[];
-  taskIndex: number;
+  taskId: string;
   imageIndex: number;
-  onNavigate: (taskIdx: number, imgIdx: number) => void;
+  characterMap: Map<string, { name: string; outfits: Map<string, string> }>;
+  onNavigate: (taskId: string, imgIdx: number) => void;
   onClose: () => void;
 }) {
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<string | null>(null);
   const [destPath, setDestPath] = useState("");
+  const saveHandlerRef = useRef<() => void>();
 
-  const safeTaskIdx = Math.min(taskIndex, doneTasks.length - 1);
+  // Derive task index from ID (stable across doneTasks changes)
+  const safeTaskIdx = useMemo(() => {
+    const idx = doneTasks.findIndex((t) => t.id === taskId);
+    return idx >= 0 ? idx : Math.min(doneTasks.length - 1, 0);
+  }, [doneTasks, taskId]);
+
   const task = doneTasks[safeTaskIdx];
   const images = task?.result_images ?? [];
   const safeImgIdx = Math.min(imageIndex, Math.max(0, images.length - 1));
   const currentPath = images[safeImgIdx];
+
+  // Character/source info for display
+  const charInfo = task ? characterMap.get(task.character_id) : null;
+  const sourceName = task?.source_image_path.split(/[/\\]/).pop() || "";
 
   // Initialize destPath from task source (replace "original" with "AI済み")
   useEffect(() => {
@@ -1103,52 +1113,8 @@ function PageLightbox({
     setDestPath(sourceDir.replace(/original/gi, "AI済み"));
   }, [task?.source_image_path]);
 
-  // Keyboard navigation (must be before any conditional return for hooks rule)
-  useEffect(() => {
-    if (!task) return;
-    const handler = (e: KeyboardEvent) => {
-      // Don't capture when input is focused
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowRight") {
-        const nextIdx = (safeImgIdx + 1) % images.length;
-        onNavigate(safeTaskIdx, nextIdx);
-      } else if (e.key === "ArrowLeft") {
-        const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
-        onNavigate(safeTaskIdx, prevIdx);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (safeTaskIdx > 0) onNavigate(safeTaskIdx - 1, 0);
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (safeTaskIdx < doneTasks.length - 1) onNavigate(safeTaskIdx + 1, 0);
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [task, safeTaskIdx, safeImgIdx, images.length, onNavigate, onClose, doneTasks.length]);
-
-  if (!task || !currentPath) return null;
-
-  const handlePrevImage = () => {
-    const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
-    onNavigate(safeTaskIdx, prevIdx);
-  };
-
-  const handleNextImage = () => {
-    const nextIdx = (safeImgIdx + 1) % images.length;
-    onNavigate(safeTaskIdx, nextIdx);
-  };
-
-  const handlePrevTask = () => {
-    if (safeTaskIdx > 0) onNavigate(safeTaskIdx - 1, 0);
-  };
-
-  const handleNextTask = () => {
-    if (safeTaskIdx < doneTasks.length - 1) onNavigate(safeTaskIdx + 1, 0);
-  };
-
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (!task || !currentPath || saving) return;
     setSaving(true);
     setSaveResult(null);
     try {
@@ -1162,6 +1128,57 @@ function PageLightbox({
     } finally {
       setSaving(false);
     }
+  }, [task, currentPath, destPath, saving]);
+
+  // Keep ref in sync for keyboard handler
+  saveHandlerRef.current = handleSave;
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!task) return;
+    const handler = (e: KeyboardEvent) => {
+      // Don't capture when input is focused
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "Escape") onClose();
+      else if (e.key === "Enter") {
+        e.preventDefault();
+        saveHandlerRef.current?.();
+      } else if (e.key === "ArrowRight") {
+        const nextIdx = (safeImgIdx + 1) % images.length;
+        onNavigate(task.id, nextIdx);
+      } else if (e.key === "ArrowLeft") {
+        const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
+        onNavigate(task.id, prevIdx);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (safeTaskIdx > 0) onNavigate(doneTasks[safeTaskIdx - 1].id, 0);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (safeTaskIdx < doneTasks.length - 1) onNavigate(doneTasks[safeTaskIdx + 1].id, 0);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [task, safeTaskIdx, safeImgIdx, images.length, onNavigate, onClose, doneTasks]);
+
+  if (!task || !currentPath) return null;
+
+  const handlePrevImage = () => {
+    const prevIdx = (safeImgIdx - 1 + images.length) % images.length;
+    onNavigate(task.id, prevIdx);
+  };
+
+  const handleNextImage = () => {
+    const nextIdx = (safeImgIdx + 1) % images.length;
+    onNavigate(task.id, nextIdx);
+  };
+
+  const handlePrevTask = () => {
+    if (safeTaskIdx > 0) onNavigate(doneTasks[safeTaskIdx - 1].id, 0);
+  };
+
+  const handleNextTask = () => {
+    if (safeTaskIdx < doneTasks.length - 1) onNavigate(doneTasks[safeTaskIdx + 1].id, 0);
   };
 
   return (
@@ -1169,15 +1186,20 @@ function PageLightbox({
       className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Top: prev task button */}
-      <div className="shrink-0 w-full flex justify-center py-1" onClick={(e) => e.stopPropagation()}>
+      {/* Top: task info + prev task button */}
+      <div className="shrink-0 w-full flex flex-col items-center py-1" onClick={(e) => e.stopPropagation()}>
+        {/* Character + source image name */}
+        <div className="text-white/80 text-xs mb-1 flex items-center gap-2">
+          {charInfo && <span className="font-medium">{charInfo.name}</span>}
+          <span className="text-white/50">{sourceName}</span>
+        </div>
         <button
           type="button"
           onClick={handlePrevTask}
           disabled={safeTaskIdx <= 0}
           className="flex items-center gap-1 text-white/70 text-xs px-3 py-1 rounded hover:bg-white/20 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          <ChevronUp className="h-4 w-4" /> 前のタスク ({safeTaskIdx}/{doneTasks.length})
+          <ChevronUp className="h-4 w-4" /> 前のタスク ({safeTaskIdx + 1}/{doneTasks.length})
         </button>
       </div>
 
@@ -1189,7 +1211,7 @@ function PageLightbox({
         <img
           src={api.getImageUrl(currentPath)}
           alt={`Result ${safeImgIdx + 1}`}
-          className="max-w-[90vw] max-h-[75vh] object-contain"
+          className="max-w-[90vw] max-h-[70vh] object-contain"
           onClick={(e) => e.stopPropagation()}
         />
         {/* Nav arrows (always shown, wrap-around) */}
@@ -1220,7 +1242,7 @@ function PageLightbox({
         </button>
       </div>
 
-      {/* Save button between image and next task */}
+      {/* Save + image counter + Enter hint */}
       <div className="shrink-0 flex items-center gap-2 py-1" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
@@ -1229,7 +1251,7 @@ function PageLightbox({
           className="flex items-center gap-1 text-white text-sm px-4 py-1.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-50 transition-colors"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          {saveResult === "error" ? "エラー" : saveResult ? "保存済み" : "保存"}
+          {saveResult === "error" ? "エラー" : saveResult ? "保存済み" : "保存 (Enter)"}
         </button>
         <span className="text-white/50 text-xs">
           {safeImgIdx + 1}/{images.length} 枚

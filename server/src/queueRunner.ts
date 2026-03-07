@@ -248,10 +248,12 @@ export class QueueRunner {
       // Stop progress polling
       this.stopProgressPolling();
 
-      // Save result images
-      const outputFolder = isBackground
+      // Save result images (organized by date: outputs/YYYY-MM-DD/)
+      const baseFolder = isBackground
         ? (settings.background_output_folder || settings.output_folder || "./outputs")
         : (settings.output_folder || "./outputs");
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const outputFolder = `${baseFolder.replace(/[/\\]$/, "")}/${today}`;
       const savedPaths: string[] = [];
       for (let i = 0; i < result.images.length; i++) {
         const filename = this.forgeApi.makeOutputFilename(

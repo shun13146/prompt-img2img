@@ -267,11 +267,10 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         },
       });
     } else {
-      // Carry over but reset expression, mouth, and pose categories
+      // Carry over but reset expression, mouth, and pose tags (keep poseFreeText)
       set({
         currentImageIndex: currentImageIndex + 1,
         selections: createPartialResetSelections(selections),
-        poseFreeText: "",
       });
     }
   },
@@ -298,7 +297,6 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       set({
         currentImageIndex: currentImageIndex - 1,
         selections: createPartialResetSelections(selections),
-        poseFreeText: "",
       });
     }
   },

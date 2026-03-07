@@ -14,14 +14,18 @@
               "label": "閉じ目",
               "prompt": "closed eyes",
               "favorite": true,
-              "rules": ["remove_eyes"]
+              "rules": [
+                "remove_eyes"
+              ]
             },
             {
               "id": "closed_lora",
               "label": "笑い目閉じ(LoRA)",
               "prompt": "lora:hotarueye_xl_closed1_v20:1, closed eyes, smile,",
               "favorite": false,
-              "rules": ["remove_eyes"]
+              "rules": [
+                "remove_eyes"
+              ]
             },
             {
               "id": "wink",
@@ -40,7 +44,9 @@
               "label": "目なし",
               "prompt": "eyeless",
               "favorite": false,
-              "rules": ["remove_eyes"]
+              "rules": [
+                "remove_eyes"
+              ]
             }
           ]
         }
@@ -55,14 +61,54 @@
         {
           "name": "視線",
           "tags": [
-            { "id": "at_viewer", "label": "カメラ目線", "prompt": "looking at viewer,", "favorite": true },
-            { "id": "away", "label": "他方", "prompt": "looking away,", "favorite": true },
-            { "id": "down", "label": "下", "prompt": "looking down,", "favorite": true },
-            { "id": "up", "label": "上", "prompt": "looking up,", "favorite": true },
-            { "id": "sideways", "label": "目を横へ", "prompt": "sideways glance,", "favorite": false },
-            { "id": "averting", "label": "気まずそう", "prompt": "averting eyes,", "favorite": false },
-            { "id": "afar", "label": "遠くを見る", "prompt": "looking afar,", "favorite": false },
-            { "id": "at_another", "label": "何かを見る", "prompt": "looking at another", "favorite": false }
+            {
+              "id": "at_viewer",
+              "label": "カメラ目線",
+              "prompt": "looking at viewer,",
+              "favorite": true
+            },
+            {
+              "id": "away",
+              "label": "他方",
+              "prompt": "looking away,",
+              "favorite": true
+            },
+            {
+              "id": "down",
+              "label": "下",
+              "prompt": "looking down,",
+              "favorite": true
+            },
+            {
+              "id": "up",
+              "label": "上",
+              "prompt": "looking up,",
+              "favorite": true
+            },
+            {
+              "id": "sideways",
+              "label": "目を横へ",
+              "prompt": "sideways glance,",
+              "favorite": true
+            },
+            {
+              "id": "averting",
+              "label": "気まずそう",
+              "prompt": "averting eyes,",
+              "favorite": false
+            },
+            {
+              "id": "afar",
+              "label": "遠くを見る",
+              "prompt": "looking afar,",
+              "favorite": false
+            },
+            {
+              "id": "at_another",
+              "label": "何かを見る",
+              "prompt": "looking at another",
+              "favorite": true
+            }
           ]
         }
       ]
@@ -533,7 +579,7 @@
               "id": "constricted_pupils",
               "label": "瞳孔小さく",
               "prompt": "constricted pupils,",
-              "favorite": false
+              "favorite": true
             },
             {
               "id": "wide_eyed",
@@ -1149,7 +1195,7 @@
               "id": "outstretched_arm",
               "label": "手を前に出す",
               "prompt": "outstretched_arm",
-              "favorite": false
+              "favorite": true
             },
             {
               "id": "spread_arms",

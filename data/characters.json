@@ -31,11 +31,25 @@
             "features": "1woman,solo,midium breasts,cross dangling earrings,cross necklace,teenager,",
             "clothing": "long-sleeved sailor school uniform, pleated skirt,brown color,white shirt,high-neck,red ribbon,"
           }
+        },
+        {
+          "id": "pc513qml",
+          "name": "書店員",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "lora": "<lora:siratori_v1:1> siratori,,",
+            "hair": "platinum blonde hair hair,light brown hair,short hair,(asymmetry bangs:1.1),(asymmetry hair:1.1),hair between eyes,(gold hairpin:1.1),straight hair,sidecut,",
+            "eyes": "yellow eyes, tareme,<lora:eyecolle_xl_code725:1>,",
+            "features": "1woman,solo,midium breasts,cross dangling earrings,cross necklace,teenager,",
+            "clothing": ",white shits,brown belt,green apron,"
+          }
         }
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -71,7 +85,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -107,7 +121,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -143,7 +157,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -179,7 +193,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -215,7 +229,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -251,7 +265,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -301,7 +315,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -337,7 +351,7 @@
       ],
       "settings": {
         "steps": 35,
-        "sampler": "DPM++ 2M Karras",
+        "sampler": "Euler a",
         "cfg_scale": 7,
         "width": 512,
         "height": 768,
@@ -351,6 +365,68 @@
       },
       "memo": "モブ - 金貸し（男性）",
       "group": "神様のかくしごと/モブ"
+    },
+    {
+      "id": "5iovd1do",
+      "name": "万引き後輩",
+      "group": "神様のかくしごと/モブ",
+      "outfits": [
+        {
+          "id": "31tf1yh5",
+          "name": "制服",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:fingers_adjuster_illustrious2.0stable_v1.0:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "hair": "black hair,short hair,long bangs,hair over eyes",
+            "lora": "",
+            "eyes": ",black eyes,<lora:sdxl-eye-iris-width:1.5> , <lora:sdxl-eye-hanme_01:1>",
+            "features": ",man,guy,male,solo,mature male,",
+            "clothing": "school uniform, <lora:Classic_gakuran:1> ,school uniform,gakuran,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "Euler a",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8
+      },
+      "memo": ""
+    },
+    {
+      "id": "16m1b2dp",
+      "name": "万引き先輩",
+      "group": "神様のかくしごと/モブ",
+      "outfits": [
+        {
+          "id": "raxj7rz4",
+          "name": "パーカー",
+          "block1": {
+            "quality": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, masterpiece,best quality,amazing quality,, Smooth Quality, high contrast, intricate details, kudo, Ultra high quality, ,<lora:noobai_vp10_stabilizer_v0.271_fp16:0.6>, <lora:add-detail-xl:1>, <lora:fingers_adjuster_illustrious2.0stable_v1.0:1>, <lora:BOA_r1:0.5>,"
+          },
+          "block2": {
+            "hair": "brown hair,short hair,short bang,",
+            "lora": "",
+            "eyes": ",black eyes,<lora:sdxl-eye-iris-width:1.5> , <lora:sdxl-eye-hanme_01:1>",
+            "features": ",man,guy,male,solo,mature male,",
+            "clothing": "grey parka,"
+          }
+        }
+      ],
+      "settings": {
+        "steps": 35,
+        "sampler": "Euler a",
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 768,
+        "denoising_strength": 0.55,
+        "n_iter": 8
+      },
+      "memo": ""
     }
   ]
 }

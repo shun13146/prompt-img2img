@@ -105,7 +105,7 @@ export function BackgroundPage() {
       final_prompt: prompt,
       settings: {
         steps: 35,
-        sampler: "DPM++ 2M Karras",
+        sampler: "Euler a",
         cfg_scale: 7,
         width: 512,
         height: 768,
